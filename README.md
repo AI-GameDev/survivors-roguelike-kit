@@ -8,20 +8,19 @@ This project is now open source so developers can learn from it, extend it, and 
 
 ## Preview
 
-| Store Page | Game Settings |
+![Survivors Roguelike Kit cover](Media/GithubCover.PNG)
+
+| Character Select | Level Select |
 | --- | --- |
-| ![Store page preview](Media/1.png) | ![Game settings preview](Media/2.png) |
+| ![Character select preview](Media/CharacterSelect.png) | ![Level select preview](Media/LevelSelect.png) |
 
-| Gameplay | Combat |
+| Settings | Power Up |
 | --- | --- |
-| ![Gameplay preview](Media/3.png) | ![Combat preview](Media/4.png) |
+| ![Settings preview](Media/Setting.png) | ![Power up preview](Media/PowerUp.png) |
 
-Image placeholders:
-
-- `Media/1.png` - original store page image
-- `Media/2.png` - game settings image
-- `Media/3.png` - gameplay image
-- `Media/4.png` - combat image
+| Skill Upgrade | Combat |
+| --- | --- |
+| ![Skill upgrade preview](Media/SkillUpgrede.png) | ![Combat preview](Media/Fight.png) |
 
 ## Features
 
