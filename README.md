@@ -41,23 +41,38 @@ Image placeholders:
 
 ## Requirements
 
-- Unity 2021.3.21 or newer
+- Unity 6
 - Built-in Render Pipeline
-- DOTween
+- DOTween, already included in this project
 
 ## Quick Start
 
-Read the installation and setup guide:
+You can clone this repository directly and open it with Unity Hub using Unity 6.
+
+This project uses Unity's Built-in Render Pipeline by default.
+
+```bash
+git clone https://github.com/Roo-Roo-Roo/survivors-roguelike-kit.git
+```
+
+If you want to import the kit into your own Unity project, use the release package from the GitHub Releases panel on the right side of this repository page.
+
+I plan to provide separate release packages for:
+
+- Unity 2021
+- Unity 2022
+- Unity 6
+
+Read the installation and import guide here:
 
 https://roofen-game.gitbook.io/roofen-game/survivors-roguelike-kit/quick-start
 
 In general:
 
-1. Create or open a Unity 2D project using the Built-in Render Pipeline.
-2. Import or clone this project.
-3. Install DOTween if it is not already installed.
-4. Open the initialization scene.
-5. Press Play.
+1. Clone this repository and open it with Unity Hub, or import a release package into your own Unity project.
+2. Use a Unity project with the Built-in Render Pipeline.
+3. Open the initialization scene.
+4. Press Play.
 
 ## Documentation
 
