@@ -10,6 +10,8 @@ This project is now open source so developers can learn from it, extend it, and 
 
 ![Survivors Roguelike Kit cover](Media/GithubCover.PNG)
 
+![Survivors Roguelike Kit gameplay demo](Media/Demo1.4-small.gif)
+
 | Character Select | Level Select |
 | --- | --- |
 | ![Character select preview](Media/CharacterSelect.png) | ![Level select preview](Media/LevelSelect.png) |
