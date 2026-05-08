@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: MapScene
+  m_EditorClassIdentifier: 
+  m_GroupName: MapScene
+  m_GUID: 110bda9394ca0a845a694345e9cd15c8
+  m_SerializeEntries:
+  - m_GUID: 9f69e3d8487154a478efe580e3f6abd1
+    m_Address: Assets/RGame/RoguelikeKit/Scenes/GameLevel/GameLevel.unity
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: f73bcf546edaa3347a5f9f5fc77a72ea, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 7bfd3245ed16b554aad538896c2febe6, type: 2}
+    - {fileID: 11400000, guid: 8a4a134225680664bbf4efbd4c257b27, type: 2}

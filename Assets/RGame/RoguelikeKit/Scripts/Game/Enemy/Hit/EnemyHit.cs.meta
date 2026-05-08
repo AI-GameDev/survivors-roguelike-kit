@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c76b7cb96f03f924aa639f0b6ead6e88
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _hitAnimationSO: {fileID: 11400000, guid: 7488186d451a4354fbfe959840bee491, type: 2}
+  - _dissolveAnimationSO: {fileID: 11400000, guid: 3ccd4dace94dfac48b050e43d96bd9ef, type: 2}
+  - _spriteRenderers: {instanceID: 0}
+  - poolRuntimeSo: {fileID: 11400000, guid: 52af97b42e2615f48803c999102a7193, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

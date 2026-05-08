@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acc9fdb4c96b520478d41a0524e0a037, type: 3}
+  m_Name: AttributeSO
+  m_EditorClassIdentifier: 
+  mAttributeConfig:
+    Might: 4
+    HPMax: 3
+    Recovery: 0
+    Armor: 3
+    MoveSpeed: 0
+    SkillSpeed: 0
+    Amount: 0
+    Cooldown: 0
+    Area: 1
+    Duration: 0
+    Magnet: 0
+    Curse: 0
+    Growth: 0
+    Greed: 0
+    GoldCount: 9996

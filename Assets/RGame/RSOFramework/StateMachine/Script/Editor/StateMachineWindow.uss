@@ -1,0 +1,80 @@
+GridBackground {
+    --grid-background-color: rgb(40, 40, 40);
+    --line-color: rgba(193, 196, 192, 0.1);
+    --thick-line-color: rgba(193, 196, 192, 0.1);
+    --spacing: 15;
+}
+
+.professional-state {
+    transition-property: all;
+    transition-duration: 0.2s;
+}
+
+.professional-state:hover {
+    scale: 1.05 1.05;
+}
+
+.state-selected {
+    border-color: rgba(68, 192, 255, 0.8);
+    border-width: 2px;
+}
+
+.state-collapsed {
+    opacity: 0.8;
+}
+
+.state-running {
+    border-color: rgba(255, 200, 50, 1);
+}
+
+.state-active {
+    border-color: rgba(80, 200, 80, 1);
+}
+
+.state-idle {
+    border-color: rgba(128, 128, 128, 0.6);
+}
+
+.actionstatenode-state {
+    border-color: rgba(38, 178, 76, 1);
+}
+
+.conditionstatenode-state {
+    border-color: rgba(153, 76, 204, 1);
+}
+
+.entrystatenode-state {
+    border-color: rgba(255, 178, 51, 1);
+}
+
+.blackboard-view {
+    background-color: rgba(32, 32, 32, 0.8);
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: rgba(128, 128, 128, 0.3);
+}
+
+.blackboard-header {
+    background-color: rgba(64, 64, 64, 0.5);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(128, 128, 128, 0.3);
+}
+
+.blackboard-content {
+    padding: 8px;
+}
+
+.unity-list-view__item {
+    background-color: rgba(48, 48, 48, 0.5);
+    border-radius: 4px;
+    margin-bottom: 2px;
+    padding: 4px;
+}
+
+.unity-list-view__item:hover {
+    background-color: rgba(64, 64, 64, 0.7);
+}
+
+.unity-list-view__item--selected {
+    background-color: rgba(68, 192, 255, 0.3);
+}

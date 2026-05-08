@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 385c2481e42cfa942b52505d38bca920, type: 3}
+  m_Name: RandomSkill
+  m_EditorClassIdentifier: 
+  Description: 
+  SkillType: 0
+  Key: RandomSkill
+  MixAttributeSkillKey: Amount
+  AttributeType: 0
+  SkillPrefab: {fileID: 3228222673249282260, guid: 161eba337e9268141950629b31dc6466, type: 3}
+  SkillIcon: {fileID: -8706829820385163318, guid: c8a331622780ed0499caa22d915b566a, type: 3}
+  Velocity: 10
+  Duration: 1
+  CD: 8
+  Damage: 20
+  Amount: 2
+  Area: 0
+  UpgradeAttribute:
+  - skillAttributeType: 1
+    IntValue: 10
+  - skillAttributeType: 0
+    IntValue: 10
+  - skillAttributeType: 2
+    IntValue: 1
+  - skillAttributeType: 2
+    IntValue: 1
+  - skillAttributeType: 1
+    IntValue: 10
+  - skillAttributeType: 0
+    IntValue: 10
+  - skillAttributeType: 1
+    IntValue: 10
+  - skillAttributeType: 2
+    IntValue: 1
+  - skillAttributeType: 1
+    IntValue: 10
+  - skillAttributeType: 0
+    IntValue: 10
+  UpgradeAttributeModValue: 

@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 385c2481e42cfa942b52505d38bca920, type: 3}
+  m_Name: BouncingSkill
+  m_EditorClassIdentifier: 
+  Description: 
+  SkillType: 0
+  Key: BouncingSkill
+  MixAttributeSkillKey: HPMax
+  AttributeType: 0
+  SkillPrefab: {fileID: 3228222673249282260, guid: 5a61fbec4b9318a4faede6332495114f, type: 3}
+  SkillIcon: {fileID: 1855454349221281607, guid: 0f52c8a19cac7624182c2a9772676363, type: 3}
+  Velocity: 7
+  Duration: 7
+  CD: 10
+  Damage: 10
+  Amount: 2
+  Area: 0
+  UpgradeAttribute:
+  - skillAttributeType: 1
+    IntValue: 10
+  - skillAttributeType: 0
+    IntValue: 10
+  - skillAttributeType: 3
+    IntValue: 1
+  - skillAttributeType: 2
+    IntValue: 1
+  - skillAttributeType: 1
+    IntValue: 10
+  - skillAttributeType: 0
+    IntValue: 10
+  - skillAttributeType: 3
+    IntValue: 1
+  - skillAttributeType: 2
+    IntValue: 1
+  - skillAttributeType: 1
+    IntValue: 10
+  - skillAttributeType: 3
+    IntValue: 1
+  UpgradeAttributeModValue: 

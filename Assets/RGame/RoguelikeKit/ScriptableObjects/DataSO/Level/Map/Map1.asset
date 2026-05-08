@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad3136d190f95954498e19d21de8936f, type: 3}
+  m_Name: Map1
+  m_EditorClassIdentifier: 
+  tiles:
+  - sprite: {fileID: 21300000, guid: 38bd61ab9c2a803408f7c482c1c2ba76, type: 3}
+    weight: 200
+  - sprite: {fileID: 21300000, guid: 4e55075aef72cef4a80e5b7156ed518b, type: 3}
+    weight: 3
+  - sprite: {fileID: 21300000, guid: 85ff866d5759077469adabb9f0e9afd6, type: 3}
+    weight: 3
+  - sprite: {fileID: 21300000, guid: de85cd1ad0db2734687aa1a1b6b7d61e, type: 3}
+    weight: 1
+  - sprite: {fileID: 21300000, guid: 42342579b41b4414fa287b79dd35e703, type: 3}
+    weight: 1
+  - sprite: {fileID: 21300000, guid: 5129cdb478bb26d41a78aac517d146c4, type: 3}
+    weight: 3
+  Width: 100
+  Height: 100
+  PropCount: 20

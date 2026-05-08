@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 385c2481e42cfa942b52505d38bca920, type: 3}
+  m_Name: FourCornerSkill
+  m_EditorClassIdentifier: 
+  Description: 
+  SkillType: 0
+  Key: FourCornerSkill
+  MixAttributeSkillKey: Might
+  AttributeType: 0
+  SkillPrefab: {fileID: 3228222673249282260, guid: 50b171f87eb878c42bc50dc9cd1a706d, type: 3}
+  SkillIcon: {fileID: -622386549785431409, guid: 90ba3cf015117ee4db81abe311323502, type: 3}
+  Velocity: 10
+  Duration: 1
+  CD: 5
+  Damage: 10
+  Amount: 1
+  Area: 0
+  UpgradeAttribute:
+  - skillAttributeType: 0
+    IntValue: 10
+  - skillAttributeType: 4
+    IntValue: 10
+  - skillAttributeType: 1
+    IntValue: 10
+  - skillAttributeType: 0
+    IntValue: 10
+  - skillAttributeType: 4
+    IntValue: 10
+  - skillAttributeType: 1
+    IntValue: 10
+  - skillAttributeType: 4
+    IntValue: 10
+  - skillAttributeType: 0
+    IntValue: 10
+  - skillAttributeType: 4
+    IntValue: 10
+  - skillAttributeType: 1
+    IntValue: 10
+  UpgradeAttributeModValue: 

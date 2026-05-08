@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 385c2481e42cfa942b52505d38bca920, type: 3}
+  m_Name: InsideScopeSkill
+  m_EditorClassIdentifier: 
+  Description: 
+  SkillType: 0
+  Key: InsideScopeSkill
+  MixAttributeSkillKey: SkillSpeed
+  AttributeType: 0
+  SkillPrefab: {fileID: 3228222673249282260, guid: 6dd637617ad76244d9f444dfa3e249bf, type: 3}
+  SkillIcon: {fileID: 5431121100882071409, guid: ab5557a74c7bd3b4391ef4d436178197, type: 3}
+  Velocity: 0
+  Duration: 5
+  CD: 5
+  Damage: 5
+  Amount: 1
+  Area: 0
+  UpgradeAttribute:
+  - skillAttributeType: 4
+    IntValue: 20
+  - skillAttributeType: 0
+    IntValue: 5
+  - skillAttributeType: 4
+    IntValue: 20
+  - skillAttributeType: 0
+    IntValue: 5
+  - skillAttributeType: 0
+    IntValue: 5
+  - skillAttributeType: 4
+    IntValue: 20
+  - skillAttributeType: 0
+    IntValue: 5
+  - skillAttributeType: 4
+    IntValue: 20
+  - skillAttributeType: 0
+    IntValue: 5
+  - skillAttributeType: 4
+    IntValue: 20
+  UpgradeAttributeModValue: 

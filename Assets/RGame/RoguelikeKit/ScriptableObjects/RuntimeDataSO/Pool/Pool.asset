@@ -1,0 +1,148 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d4a8d82e9d239e498724ae75674b75a, type: 3}
+  m_Name: Pool
+  m_EditorClassIdentifier: 
+  Description: 
+  _poolDefinitions:
+  - _key: Exp40
+    _pool:
+      _prefab: {fileID: 305084627162497975, guid: 21e32b418315af941be731fcb27dfec3, type: 3}
+      _preloadAmount: 50
+  - _key: Exp80
+    _pool:
+      _prefab: {fileID: 305084627162497975, guid: f2e098d5bf7dc1349ac73b9aefae1f6d, type: 3}
+      _preloadAmount: 50
+  - _key: ReplyHP
+    _pool:
+      _prefab: {fileID: 305084627162497975, guid: 4bbcc219d584ff14593df6c43350b8dc, type: 3}
+      _preloadAmount: 1
+  - _key: Suck
+    _pool:
+      _prefab: {fileID: 305084627162497975, guid: 0ba49277044d9a6469d6f529df9832c9, type: 3}
+      _preloadAmount: 1
+  - _key: Purse
+    _pool:
+      _prefab: {fileID: 5315366114695781199, guid: 4c5b3d0b50e104449ba7dce4b9e2ecac, type: 3}
+      _preloadAmount: 1
+  - _key: Box
+    _pool:
+      _prefab: {fileID: 1497598358026119363, guid: 29c9800e5eda3da4788b303c3cfe260b, type: 3}
+      _preloadAmount: 1
+  - _key: SlowBuff
+    _pool:
+      _prefab: {fileID: 5082330408867312234, guid: dbd39c350f84c2c42b7d803a3324dd29, type: 3}
+      _preloadAmount: 30
+  - _key: DamagePopup
+    _pool:
+      _prefab: {fileID: 2692162196527295532, guid: 7f5401b70ce524a438ff8c272153f511, type: 3}
+      _preloadAmount: 100
+  - _key: BlueMagic
+    _pool:
+      _prefab: {fileID: 5773910967115030438, guid: 49385dcaf1348a947a06df57a83d93d7, type: 3}
+      _preloadAmount: 20
+  - _key: PinkMagic
+    _pool:
+      _prefab: {fileID: 5773910967115030438, guid: 365d7af290a53bc4892c49a60dba2e3a, type: 3}
+      _preloadAmount: 10
+  - _key: RedMagic
+    _pool:
+      _prefab: {fileID: 5773910967115030438, guid: 2da98f60eb4dc2e4b8190b87237d1101, type: 3}
+      _preloadAmount: 10
+  - _key: GreenMagic
+    _pool:
+      _prefab: {fileID: 5773910967115030438, guid: e5fa10bd85404ca47a0202037b1e6898, type: 3}
+      _preloadAmount: 10
+  - _key: SnowMagic
+    _pool:
+      _prefab: {fileID: 5773910967115030438, guid: ffe96cc60970c8d4cb4d9310be916c97, type: 3}
+      _preloadAmount: 10
+  - _key: Bat
+    _pool:
+      _prefab: {fileID: 154470369426367514, guid: 34f983df075c064498de8cab2b6398ee, type: 3}
+      _preloadAmount: 30
+  - _key: Bat1
+    _pool:
+      _prefab: {fileID: 154470369426367514, guid: ad94570dab2f47d4abd6e5235cb70e6c, type: 3}
+      _preloadAmount: 30
+  - _key: BoyFairy
+    _pool:
+      _prefab: {fileID: 154470369426367514, guid: 781911c8f0217aa4b901870908abef8b, type: 3}
+      _preloadAmount: 30
+  - _key: EyeBall
+    _pool:
+      _prefab: {fileID: 4101547999572780385, guid: 6b390bf1d4305f64d9d898283785bce6, type: 3}
+      _preloadAmount: 30
+  - _key: EyeBall1
+    _pool:
+      _prefab: {fileID: 4101547999572780385, guid: 15da17a3141063d4fa0c9d8de0df494c, type: 3}
+      _preloadAmount: 30
+  - _key: FlySkull
+    _pool:
+      _prefab: {fileID: 4101547999572780385, guid: aedd6254a3cd3d645bff0a5c0de6a58c, type: 3}
+      _preloadAmount: 30
+  - _key: FlySkull1
+    _pool:
+      _prefab: {fileID: 4101547999572780385, guid: 3820f12acef088243a08867a07716ec1, type: 3}
+      _preloadAmount: 30
+  - _key: ForestGuardianFairy
+    _pool:
+      _prefab: {fileID: 154470369426367514, guid: 429f94f06b6e29e48a02a2eb20a73f54, type: 3}
+      _preloadAmount: 20
+  - _key: ForestGuardianFairy1
+    _pool:
+      _prefab: {fileID: 154470369426367514, guid: f3b0a07d9ad9c5c4988b463564eada0e, type: 3}
+      _preloadAmount: 30
+  - _key: Gear
+    _pool:
+      _prefab: {fileID: 4101547999572780385, guid: 3ff31db5558a4d142b24a0a4a3857741, type: 3}
+      _preloadAmount: 30
+  - _key: Gear1
+    _pool:
+      _prefab: {fileID: 4101547999572780385, guid: e14da3677b45186458aea75d05ca5686, type: 3}
+      _preloadAmount: 30
+  - _key: Ghost
+    _pool:
+      _prefab: {fileID: 4101547999572780385, guid: 32d787063a0fc9e49826407116769062, type: 3}
+      _preloadAmount: 30
+  - _key: Slime
+    _pool:
+      _prefab: {fileID: 4101547999572780385, guid: 2036a490efa5a6540a1457e9d241276f, type: 3}
+      _preloadAmount: 30
+  - _key: Slime1
+    _pool:
+      _prefab: {fileID: 4101547999572780385, guid: 892e39715f8116b40b0f174c97cb8037, type: 3}
+      _preloadAmount: 30
+  - _key: Crow
+    _pool:
+      _prefab: {fileID: 4101547999572780385, guid: 1f3068e04ea7dee47bac6ad6e85fb720, type: 3}
+      _preloadAmount: 1
+  - _key: CrystalHealerFairy
+    _pool:
+      _prefab: {fileID: 154470369426367514, guid: fc3de6afafe758a4fa3c88b5069c3ea5, type: 3}
+      _preloadAmount: 1
+  - _key: Fairy
+    _pool:
+      _prefab: {fileID: 154470369426367514, guid: 1c30ef2395dc7ac47945e2ab7dfd34eb, type: 3}
+      _preloadAmount: 1
+  - _key: FlameDancerFairy
+    _pool:
+      _prefab: {fileID: 154470369426367514, guid: 0fdeb1b5084e35249b27683f8c452691, type: 3}
+      _preloadAmount: 1
+  - _key: FrostCrystalFairy
+    _pool:
+      _prefab: {fileID: 154470369426367514, guid: 0e7afdf61fe2ce34780a4e15e6b98898, type: 3}
+      _preloadAmount: 1
+  - _key: PinkFairy
+    _pool:
+      _prefab: {fileID: 154470369426367514, guid: 8d28448697ec53347b82a4cd4fcb0285, type: 3}
+      _preloadAmount: 1

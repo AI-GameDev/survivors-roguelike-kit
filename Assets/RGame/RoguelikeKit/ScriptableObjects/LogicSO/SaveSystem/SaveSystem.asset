@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc43521e0c1373498318063f1a23397, type: 3}
+  m_Name: SaveSystem
+  m_EditorClassIdentifier: 
+  _saveData: {fileID: 11400000, guid: 985c2a36cc5fac140b195b8034e123d8, type: 2}
+  _currentSettings: {fileID: 11400000, guid: 591e1e4ad03063244a94518869ef8a28, type: 2}
+  _attribute: {fileID: 11400000, guid: 3fe8cc45f33e15d4ab9b49289c6376a4, type: 2}
+  _characterSave: {fileID: 11400000, guid: d5f332fbf29967046a3088f581887af7, type: 2}
+  saveFilename: RoguelikeKit.RGame
+  backupSaveFilename: RoguelikeKit.RGame.bak
+  Save:
+    MasterVolume: 0
+    MusicVolume: 0
+    SfxVolume: 0
+    ResolutionsIndex: 0
+    IsFullscreen: 0
+    LanguageLocale: {fileID: 0}
+    IsShowDamage: 0
+    Might: 0
+    HPMax: 0
+    Recovery: 0
+    Armor: 0
+    MoveSpeed: 0
+    SkillSpeed: 0
+    Amount: 0
+    Cooldown: 0
+    Area: 0
+    Duration: 0
+    Magnet: 0
+    Curse: 0
+    Growth: 0
+    Greed: 0
+    GoldCount: 0
+    CharacterTwo: 0
+    CharacterThree: 0

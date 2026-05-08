@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: MainMenu_en
+  m_EditorClassIdentifier: 
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: c14911beed33b8f4a98f67e354f3e326, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 60444430336
+    m_Localized: START
+    m_Metadata:
+      m_Items: []
+  - m_Id: 64047337472
+    m_Localized: QUIT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 864563810304
+    m_Localized: OPTIONS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 247485205630976
+    m_Localized: POWER UP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 248680238338048
+    m_Localized: Character Selection
+    m_Metadata:
+      m_Items: []
+  - m_Id: 249323820732416
+    m_Localized: Confirm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1044394694463488
+    m_Localized: MasterVolume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1044429859508224
+    m_Localized: MusicVolume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1044456841465856
+    m_Localized: SFXVolume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1044742620368896
+    m_Localized: Resolution
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1044795674120192
+    m_Localized: FullScreen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1044852582436864
+    m_Localized: ShowDamageText
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1045225607057408
+    m_Localized: Language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1045456616738816
+    m_Localized: Save
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1045470432776192
+    m_Localized: Back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1803786150793216
+    m_Localized: First level scenario for demo
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 385c2481e42cfa942b52505d38bca920, type: 3}
+  m_Name: ToNearestSkill
+  m_EditorClassIdentifier: 
+  Description: 
+  SkillType: 0
+  Key: ToNearestSkill
+  MixAttributeSkillKey: Cooldown
+  AttributeType: 0
+  SkillPrefab: {fileID: 3228222673249282260, guid: 54d9681cb35354f46b3cf889783b7abb, type: 3}
+  SkillIcon: {fileID: -5357625079516145328, guid: 0fb0920f731c6c64c95148a4aff5d790, type: 3}
+  Velocity: 10
+  Duration: 2
+  CD: 1
+  Damage: 15
+  Amount: 1
+  Area: 0
+  UpgradeAttribute:
+  - skillAttributeType: 0
+    IntValue: 10
+  - skillAttributeType: 1
+    IntValue: 10
+  - skillAttributeType: 2
+    IntValue: 1
+  - skillAttributeType: 0
+    IntValue: 10
+  - skillAttributeType: 1
+    IntValue: 10
+  - skillAttributeType: 2
+    IntValue: 1
+  - skillAttributeType: 0
+    IntValue: 10
+  - skillAttributeType: 1
+    IntValue: 10
+  - skillAttributeType: 2
+    IntValue: 1
+  - skillAttributeType: 2
+    IntValue: 1
+  UpgradeAttributeModValue: 

@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: ManagerScene
+  m_EditorClassIdentifier: 
+  m_GroupName: ManagerScene
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 8550aeb66e41d4842ba2eefe6029326a
+  m_SerializeEntries:
+  - m_GUID: c7bd915d022318b4f8cebc4905248297
+    m_Address: Assets/Scenes/Managers/GamePlay.unity
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8b6cc8a0e646b9e4c8f9acc99e1a7479
+    m_Address: Assets/Scenes/Managers/PersistentManagers.unity
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: f73bcf546edaa3347a5f9f5fc77a72ea, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 728749d6d15258b41bbc5101d75847c4, type: 2}
+    - {fileID: 11400000, guid: 6522a6604fb358d429c71f2dfae44ccd, type: 2}

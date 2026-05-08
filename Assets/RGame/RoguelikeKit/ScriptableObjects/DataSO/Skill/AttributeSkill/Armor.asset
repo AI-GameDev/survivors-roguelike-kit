@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 385c2481e42cfa942b52505d38bca920, type: 3}
+  m_Name: Armor
+  m_EditorClassIdentifier: 
+  Description: 
+  SkillType: 1
+  Key: BothSideSkill
+  MixAttributeSKillKey: 
+  AttributeType: 1
+  SkillPrefab: {fileID: 3228222673249282260, guid: 3768c303345980448802ecaf9109c93b, type: 3}
+  SkillIcon: {fileID: -3225565707884591259, guid: 3acdc224511812a4c8fdc94dd78775f8, type: 3}
+  Velocity: 20
+  Duration: 1
+  CD: 5
+  Damage: 20
+  Amount: 1
+  Area: 0
+  UpgradeAttribute:
+  - skillAttributeType: 1
+    IntValue: 10
+  - skillAttributeType: 0
+    IntValue: 10
+  - skillAttributeType: 4
+    IntValue: 20
+  - skillAttributeType: 0
+    IntValue: 10
+  - skillAttributeType: 1
+    IntValue: 10
+  - skillAttributeType: 4
+    IntValue: 20
+  - skillAttributeType: 1
+    IntValue: 10
+  - skillAttributeType: 0
+    IntValue: 10
+  - skillAttributeType: 4
+    IntValue: 20
+  - skillAttributeType: 4
+    IntValue: 20
+  UpgradeAttributeModValue: f6fffffff6fffffff6fffffff6fffffff6ffffff

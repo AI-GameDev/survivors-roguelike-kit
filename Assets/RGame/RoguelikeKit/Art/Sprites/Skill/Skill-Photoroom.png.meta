@@ -1,0 +1,657 @@
+fileFormatVersion: 2
+guid: 39c10a46626bda34ba2abd1e855e4118
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -424352421533346033
+    second: Skill-Photoroom_0
+  - first:
+      213: -7748679392973610712
+    second: Skill-Photoroom_1
+  - first:
+      213: 3427580755432914271
+    second: Skill-Photoroom_2
+  - first:
+      213: 1872771438652565486
+    second: Skill-Photoroom_3
+  - first:
+      213: 5345486730526350694
+    second: Skill-Photoroom_4
+  - first:
+      213: 1846648553604716942
+    second: Skill-Photoroom_5
+  - first:
+      213: -3611488810265884265
+    second: Skill-Photoroom_6
+  - first:
+      213: 4775513562546295166
+    second: Skill-Photoroom_7
+  - first:
+      213: -4540557336431992680
+    second: Skill-Photoroom_8
+  - first:
+      213: 3345031788557052060
+    second: Skill-Photoroom_9
+  - first:
+      213: -6914762729607983310
+    second: Skill-Photoroom_10
+  - first:
+      213: 4613632102146049072
+    second: Skill-Photoroom_11
+  - first:
+      213: 6902310984799320734
+    second: Skill-Photoroom_12
+  - first:
+      213: -9097804210020052514
+    second: Skill-Photoroom_13
+  - first:
+      213: 1502683474007365341
+    second: Skill-Photoroom_14
+  - first:
+      213: -3865345828169155290
+    second: Skill-Photoroom_15
+  - first:
+      213: -1107674258077045397
+    second: Skill-Photoroom_16
+  - first:
+      213: 5321503355464181260
+    second: Skill-Photoroom_17
+  - first:
+      213: -6852236318573576669
+    second: Skill-Photoroom_18
+  - first:
+      213: -6167644346291735235
+    second: Skill-Photoroom_19
+  - first:
+      213: 2283946586325984457
+    second: Skill-Photoroom_20
+  - first:
+      213: 2350632268927929300
+    second: Skill-Photoroom_21
+  - first:
+      213: 8309613318760552903
+    second: Skill-Photoroom_22
+  - first:
+      213: -3253706070961422697
+    second: Skill-Photoroom_23
+  - first:
+      213: -63222225664806620
+    second: Skill-Photoroom_24
+  - first:
+      213: 5936676097908884055
+    second: Skill-Photoroom_25
+  - first:
+      213: -2734222424601807004
+    second: Skill-Photoroom_26
+  - first:
+      213: 6978873179700916959
+    second: Skill-Photoroom_27
+  - first:
+      213: 6897254952277536542
+    second: Skill-Photoroom_28
+  - first:
+      213: -5667782695172236131
+    second: Skill-Photoroom_29
+  - first:
+      213: 7068675712126736354
+    second: Skill-Photoroom_30
+  - first:
+      213: 7728653575050813644
+    second: Skill-Photoroom_31
+  - first:
+      213: 2880918986517811807
+    second: Skill-Photoroom_32
+  - first:
+      213: 4024010563722809449
+    second: Skill-Photoroom_33
+  - first:
+      213: 1145729673853094718
+    second: Skill-Photoroom_34
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 400
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Win64
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Skill-Photoroom_0
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 539
+        width: 202
+        height: 185
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f079dee88b56c1af0800000000000000
+      internalID: -424352421533346033
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill-Photoroom_1
+      rect:
+        serializedVersion: 2
+        x: 267
+        y: 551
+        width: 152
+        height: 172
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8212b677529277490800000000000000
+      internalID: -7748679392973610712
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill-Photoroom_2
+      rect:
+        serializedVersion: 2
+        x: 459
+        y: 634
+        width: 18
+        height: 10
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f5d3b867986319f20800000000000000
+      internalID: 3427580755432914271
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill-Photoroom_3
+      rect:
+        serializedVersion: 2
+        x: 464
+        y: 548
+        width: 193
+        height: 187
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee7226a73bb6df910800000000000000
+      internalID: 1872771438652565486
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill-Photoroom_4
+      rect:
+        serializedVersion: 2
+        x: 689
+        y: 510
+        width: 71
+        height: 216
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66d569c1cdbfe2a40800000000000000
+      internalID: 5345486730526350694
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill-Photoroom_5
+      rect:
+        serializedVersion: 2
+        x: 804
+        y: 560
+        width: 181
+        height: 183
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e891996531d90a910800000000000000
+      internalID: 1846648553604716942
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill-Photoroom_6
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 288
+        width: 136
+        height: 164
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 799cdc1cf0a61edc0800000000000000
+      internalID: -3611488810265884265
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill-Photoroom_8
+      rect:
+        serializedVersion: 2
+        x: 225
+        y: 287
+        width: 192
+        height: 191
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8906dafc823bcf0c0800000000000000
+      internalID: -4540557336431992680
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill-Photoroom_9
+      rect:
+        serializedVersion: 2
+        x: 446
+        y: 292
+        width: 179
+        height: 189
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c98255f50b0fb6e20800000000000000
+      internalID: 3345031788557052060
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill-Photoroom_10
+      rect:
+        serializedVersion: 2
+        x: 682
+        y: 285
+        width: 83
+        height: 203
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23f0b93fee3d900a0800000000000000
+      internalID: -6914762729607983310
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill-Photoroom_11
+      rect:
+        serializedVersion: 2
+        x: 808
+        y: 259
+        width: 169
+        height: 245
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 03401cce3f9e60040800000000000000
+      internalID: 4613632102146049072
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill-Photoroom_21
+      rect:
+        serializedVersion: 2
+        x: 49
+        y: 51
+        width: 169
+        height: 176
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4db050b289f1f9020800000000000000
+      internalID: 2350632268927929300
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill-Photoroom_23
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 60
+        width: 135
+        height: 124
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 14, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 79effcc319388d2d0800000000000000
+      internalID: -3253706070961422697
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill-Photoroom_24
+      rect:
+        serializedVersion: 2
+        x: 449
+        y: 55
+        width: 161
+        height: 166
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 421f65188b36f1ff0800000000000000
+      internalID: -63222225664806620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill-Photoroom_25
+      rect:
+        serializedVersion: 2
+        x: 624
+        y: 58
+        width: 159
+        height: 183
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 752496a057f436250800000000000000
+      internalID: 5936676097908884055
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill-Photoroom_27
+      rect:
+        serializedVersion: 2
+        x: 861
+        y: 73
+        width: 83
+        height: 85
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd2f2986e20f9d060800000000000000
+      internalID: 6978873179700916959
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill-Photoroom_34
+      rect:
+        serializedVersion: 2
+        x: 144
+        y: 47
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3b43aa611376ef00800000000000000
+      internalID: 1145729673853094718
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 220dbebc35f37264d97984a6c1f771c1
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Skill-Photoroom_0: -424352421533346033
+      Skill-Photoroom_1: -7748679392973610712
+      Skill-Photoroom_10: -6914762729607983310
+      Skill-Photoroom_11: 4613632102146049072
+      Skill-Photoroom_12: 6902310984799320734
+      Skill-Photoroom_13: -9097804210020052514
+      Skill-Photoroom_14: 1502683474007365341
+      Skill-Photoroom_15: -3865345828169155290
+      Skill-Photoroom_16: -1107674258077045397
+      Skill-Photoroom_17: 5321503355464181260
+      Skill-Photoroom_18: -6852236318573576669
+      Skill-Photoroom_19: -6167644346291735235
+      Skill-Photoroom_2: 3427580755432914271
+      Skill-Photoroom_20: 2283946586325984457
+      Skill-Photoroom_21: 2350632268927929300
+      Skill-Photoroom_22: 8309613318760552903
+      Skill-Photoroom_23: -3253706070961422697
+      Skill-Photoroom_24: -63222225664806620
+      Skill-Photoroom_25: 5936676097908884055
+      Skill-Photoroom_26: -2734222424601807004
+      Skill-Photoroom_27: 6978873179700916959
+      Skill-Photoroom_28: 6897254952277536542
+      Skill-Photoroom_29: -5667782695172236131
+      Skill-Photoroom_3: 1872771438652565486
+      Skill-Photoroom_30: 7068675712126736354
+      Skill-Photoroom_31: 7728653575050813644
+      Skill-Photoroom_32: 2880918986517811807
+      Skill-Photoroom_33: 4024010563722809449
+      Skill-Photoroom_34: 1145729673853094718
+      Skill-Photoroom_4: 5345486730526350694
+      Skill-Photoroom_5: 1846648553604716942
+      Skill-Photoroom_6: -3611488810265884265
+      Skill-Photoroom_7: 4775513562546295166
+      Skill-Photoroom_8: -4540557336431992680
+      Skill-Photoroom_9: 3345031788557052060
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

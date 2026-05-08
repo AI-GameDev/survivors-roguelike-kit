@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: aa678a8b5390b014f8ccaae34604f2ce
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _addBuffEvent: {fileID: 11400000, guid: 9554774d0b1dcfb428b5685f1ea3103c, type: 2}
+  - _baseBuff: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
