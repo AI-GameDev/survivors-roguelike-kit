@@ -141,4 +141,4 @@ https://dotween.demigiant.com/
 
 The pixel art assets and UI assets were generated with AI tools.
 
-The hand-drawn style assets were created by the project author.
+The hand-drawn style assets were created by Roo-Roo-Roo.
