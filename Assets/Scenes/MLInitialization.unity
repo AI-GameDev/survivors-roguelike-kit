@@ -202,8 +202,8 @@ MonoBehaviour:
   _expConfig: {fileID: 11400000, guid: afef12d4d5994ce47ac43821fbef199a, type: 2}
   _behaviorName: SurvivorFighterAgent
   _decisionPeriod: 5
-  _useInference: 1
-  _inferenceModel: {fileID: 5022602860645237092, guid: 55407ad9fcc9b43f3aeea471037248b3, type: 3}
+  _useInference: 0
+  _inferenceModel: {fileID: 0}
   _resetDelaySeconds: 0.5
   _trainingTimeScale: 20
   _threatTags:
@@ -232,7 +232,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _openUpgradeUIChannel: {fileID: 11400000, guid: 3597027714e15d047a58ae2c8f635812, type: 2}
   _openTreasurePanelChannel: {fileID: 11400000, guid: e54b2fad46db06c4490daf7833fd8c44, type: 2}
-  _postClickTimeScale: 1
+  _postClickTimeScale: 20
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

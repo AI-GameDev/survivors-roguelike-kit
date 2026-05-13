@@ -71,8 +71,20 @@ namespace RGame.MLAgents
         private void Awake()
         {
             DontDestroyOnLoad(gameObject);
-            // Editor/플레이어 포커스가 다른 앱으로 옮겨가도 학습이 계속 돌도록.
             Application.runInBackground = true;
+#if UNITY_EDITOR
+            // ML-Agents가 플레이 중 Assets/ML-Agents/Timers/*.json을 써서 AssetDatabase 자동 임포트를
+            // 유발하면 씬 언로드(PersistentManager 락)와 충돌해 SIGSEGV 크래시가 발생함.
+            // 플레이 모드 동안 자동 임포트를 억제해 이를 방지한다.
+            UnityEditor.AssetDatabase.DisallowAutoRefresh();
+#endif
+        }
+
+        private void OnDestroy()
+        {
+#if UNITY_EDITOR
+            UnityEditor.AssetDatabase.AllowAutoRefresh();
+#endif
         }
 
         private void OnEnable()
@@ -183,8 +195,9 @@ namespace RGame.MLAgents
         {
             Debug.Log("[MLBoot] ReloadGameScene start, waiting " + _resetDelaySeconds + "s realtime");
             yield return new WaitForSecondsRealtime(_resetDelaySeconds);
-            Time.timeScale = _useInference ? 1f : _trainingTimeScale;
-            Debug.Log("[MLBoot] After wait, timeScale=" + Time.timeScale);
+            // timeScale=0을 씬 언로드/리로드 완료까지 유지해 Academy.FixedUpdate가
+            // 씬 해제 중 Job을 스케줄하지 못하도록 한다. 복원은 reload 완료 후 수행.
+            Debug.Log("[MLBoot] After wait, beginning reload (timeScale stays 0)");
 
             if (_gameLevelScene == null || _gameLevelScene.sceneReference == null)
             {
@@ -266,6 +279,10 @@ namespace RGame.MLAgents
             // GamePlay 씬 reload 후에도 PoolRuntimeSO는 ScriptableObject라 OnDisable 안 됨 → 수동 reset.
             ResetAllPools();
             HideGameOverPanel();
+
+            // 씬 언로드/리로드가 완전히 끝난 뒤 timeScale 복원.
+            Time.timeScale = _useInference ? 1f : _trainingTimeScale;
+            Debug.Log("[MLBoot] Reload complete, timeScale restored to " + Time.timeScale);
         }
 
         private static void ResetAllPools()
