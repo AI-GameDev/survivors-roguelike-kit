@@ -1,6 +1,7 @@
 using System;
 using RGame.CommonStat;
 using RGame.Framework;
+using RGame.MLAgents;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -13,10 +14,14 @@ namespace RGame.RoguelikeKit
         [SerializeField] private SpriteRenderer _spriteRenderers;
         [SerializeField] private PoolRuntimeSO poolRuntimeSo;
         private CommonStatRuntimeSO _selfStat;
-        
+
         public UnityAction OnDeath { get; set; }
         public UnityAction OnDeathEnd { get; set; }
-        
+
+        public string LastSourceSkillKey { get; private set; }
+
+        public void SetLastSource(string skillKey) { LastSourceSkillKey = skillKey; }
+
         private bool _isDead;
 
         private void OnEnable()
@@ -41,17 +46,19 @@ namespace RGame.RoguelikeKit
         public void Hit(int damage)
         {
             if(_isDead) return;
-            
+
             _selfStat.ModifyValue("HP",damage * -1);
 
             var go = poolRuntimeSo.Request("DamagePopup");
             go.GetComponent<DamagePopup>().Show(transform.position,damage);
-            
+
+            MLBalanceHook.NotifyDamageDealt(this, damage, LastSourceSkillKey);
+
             if (_selfStat.GetValue("HP") <= 0)
             {
                 _isDead = true;
                 OnDeath?.Invoke();
-                
+
                 _dissolveAnimationSO.Play(_spriteRenderers, OnDeathEnd);
             }
             else

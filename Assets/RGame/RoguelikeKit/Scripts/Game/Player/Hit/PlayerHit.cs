@@ -4,6 +4,7 @@ using System;
 using DG.Tweening;
 using RGame.CommonStat;
 using RGame.Framework;
+using RGame.MLAgents;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -19,23 +20,34 @@ namespace RGame.RoguelikeKit
         [SerializeField] private SpriteRenderer _shadowSpriteRenderer;
         [SerializeField] private VoidEventChannelSO _playerDieEventChannel;
         [SerializeField] private VoidEventChannelSO _onGameOverEventChannel;
-        
+
         public UnityAction OnDie;
 
         private bool _isDie;
-        
+
+        public string LastAttackerEnemyKey { get; private set; }
+        public string LastAttackKind { get; private set; }
+
+        public void SetLastAttacker(string enemyKey, string attackKind)
+        {
+            LastAttackerEnemyKey = enemyKey;
+            LastAttackKind = attackKind;
+        }
+
         public void OnHit(int damage)
         {
             if (_isDie) return;
-            
+
             damage = (int)(damage * mStat.GetValue("Armor") * 0.01f);
 
             if (damage == 0)
             {
                 damage = 1;
             }
-            
+
             mStat.ModifyValue("HP",damage * -1);
+
+            MLBalanceHook.NotifyDamageTaken(damage, LastAttackerEnemyKey, LastAttackKind);
 
             if (mStat.GetValue("HP") <= 0)
             {

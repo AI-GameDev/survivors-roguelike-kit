@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using RGame.CommonStat;
 using RGame.Framework;
+using RGame.MLAgents;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
@@ -97,6 +98,7 @@ namespace RGame.RoguelikeKit
 
         private void HandleDeathEnd()
         {
+            MLBalanceHook.NotifyEnemyDeath(this, MyHit != null ? MyHit.LastSourceSkillKey : null);
             OnDeath?.Invoke(this);
             _isDead = false;
             _globalConfig.CurrentGetKill++;

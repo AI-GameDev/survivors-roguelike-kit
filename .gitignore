@@ -75,3 +75,13 @@ AssetStoreTools*
 
 # Local project notes
 /Docs/
+
+# ML-Agents
+ml-training/.venv/
+ml-training/results/
+ml-training/balance-logs/
+Assets/ML-Models/*.onnx
+
+# Claude Code local state
+.claude/settings.local.json
+.claude/scheduled_tasks.lock

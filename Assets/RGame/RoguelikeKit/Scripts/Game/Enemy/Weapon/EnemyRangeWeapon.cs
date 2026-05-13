@@ -36,6 +36,7 @@ namespace RGame.RoguelikeKit
             GameObject projectile = _poolRuntime.Request(_magicKey);
             projectile.transform.position = transform.position;
             EnemyMagic magic = projectile.GetComponent<EnemyMagic>();
+            magic?.SetOwner(OwnerEnemyKey);
            // magic?.Init(_stat.GetValue("Attack"));
         }
     }

@@ -5,6 +5,7 @@ using DG.Tweening;
 using RGame.CommonStat;
 using UnityEngine;
 using RGame.Framework;
+using RGame.MLAgents;
 using RGame.RoguelikeKit.RGame.RoguelikeKit;
 using Random = UnityEngine.Random;
 
@@ -109,10 +110,10 @@ namespace RGame.RoguelikeKit
 
                 float addBudget = set.BaseRatePerSecond * intensity * curseMul * Time.deltaTime;
                 _accumulators[set] += addBudget;
-                
+
                 while (_accumulators[set] >= 1f)
                 {
-                    RandomSpawnEnemy(set);
+                    RandomSpawnEnemy(set, intensity);
                     _accumulators[set] -= 1f;
                 }
 
@@ -120,7 +121,7 @@ namespace RGame.RoguelikeKit
             }
         }
 
-        private void RandomSpawnEnemy(SpawnSet set)
+        private void RandomSpawnEnemy(SpawnSet set, float intensity = 1f)
         {
             EnemySpawnInfo info = PickRandom(set.Entries);
             if (info == null) return;
@@ -131,12 +132,13 @@ namespace RGame.RoguelikeKit
             enemy.OnDeath += HandleEnemyDeath;
             enemySystem.AddEnemy(enemy);
             _aliveCount++;
+            MLBalanceHook.NotifyEnemySpawn(info.PoolKey, go.transform.position, _elapsed, intensity);
         }
 
         private void CircleSpawnEnemy(SpawnSet set, int count)
         {
             var enemies = GetCirclePosition(_player.position,set.CircleRadius, count);
-            
+
             for (int i = 0; i < count; i++)
             {
                 EnemySpawnInfo info = PickRandom(set.Entries);
@@ -146,6 +148,7 @@ namespace RGame.RoguelikeKit
                 BaseEnemy enemy = go.GetComponent<BaseEnemy>();
                 enemy.OnDeath += HandleEnemyDeath;
                 enemySystem.AddEnemy(enemy);
+                MLBalanceHook.NotifyEnemySpawn(info.PoolKey, go.transform.position, _elapsed, 1f);
             }
             _aliveCount += count;
         }
@@ -153,7 +156,7 @@ namespace RGame.RoguelikeKit
         private void DenseSpawnEnemy(SpawnSet set, int count)
         {
             var enemies = GetDensePosition(count);
-            
+
             for (int i = 0; i < count; i++)
             {
                 EnemySpawnInfo info = PickRandom(set.Entries);
@@ -163,6 +166,7 @@ namespace RGame.RoguelikeKit
                 BaseEnemy enemy = go.GetComponent<BaseEnemy>();
                 enemy.OnDeath += HandleEnemyDeath;
                 enemySystem.AddEnemy(enemy);
+                MLBalanceHook.NotifyEnemySpawn(info.PoolKey, go.transform.position, _elapsed, 1f);
             }
             _aliveCount += count;
         }

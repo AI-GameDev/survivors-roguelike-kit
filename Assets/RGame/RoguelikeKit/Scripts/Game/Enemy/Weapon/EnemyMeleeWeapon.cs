@@ -23,7 +23,9 @@ namespace RGame.RoguelikeKit
         
         protected override void PerformAttack()
         {
-            _playerHit?.OnHit(_stat.GetValue("Attack"));
+            if (_playerHit == null) return;
+            _playerHit.SetLastAttacker(OwnerEnemyKey, "Melee");
+            _playerHit.OnHit(_stat.GetValue("Attack"));
         }
     }
 }

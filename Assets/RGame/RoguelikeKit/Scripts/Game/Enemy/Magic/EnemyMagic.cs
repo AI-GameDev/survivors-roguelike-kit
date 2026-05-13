@@ -14,7 +14,11 @@ namespace RGame.RoguelikeKit
         private Vector3 _moveDir;
         private float _timer;
         private readonly float _delayReturn = 5f;
-        
+
+        private string _ownerEnemyKey;
+
+        public void SetOwner(string enemyKey) { _ownerEnemyKey = enemyKey; }
+
         public void Init(int damage,Vector3 moveDir)
         {
             _damage = damage;
@@ -41,7 +45,9 @@ namespace RGame.RoguelikeKit
         {
             if (other.CompareTag("PlayerHit"))
             {
-                other.GetComponent<PlayerHit>().OnHit(_damage);
+                var playerHit = other.GetComponent<PlayerHit>();
+                playerHit.SetLastAttacker(_ownerEnemyKey, "Range");
+                playerHit.OnHit(_damage);
                 poolRuntime.Return(gameObject);
             }
         }

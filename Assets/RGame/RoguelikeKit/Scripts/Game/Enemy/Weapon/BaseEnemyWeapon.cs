@@ -16,6 +16,20 @@ namespace RGame.RoguelikeKit
         protected bool _isPlayerInRange;
         private float _attackTimer;
 
+        private string _ownerEnemyKey;
+        protected string OwnerEnemyKey
+        {
+            get
+            {
+                if (_ownerEnemyKey == null)
+                {
+                    var owner = GetComponentInParent<BaseEnemy>();
+                    _ownerEnemyKey = owner != null ? owner.Key : string.Empty;
+                }
+                return _ownerEnemyKey;
+            }
+        }
+
         /// <summary>
         /// Assigns the stat runtime for damage and cooldown values.
         /// </summary>
