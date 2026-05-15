@@ -158,6 +158,20 @@ namespace RGame.MLAgents.EditorTools
             ApplyInferenceMode(true, MODEL_PATH);
         }
 
+        [MenuItem("Tools/ML/Setup Inference Mode (v17 best)")]
+        public static void SetupInferenceModeV17Best()
+        {
+            const string MODEL_PATH = "Assets/ML-Models/SurvivorFighterAgent_v17_best.onnx";
+            ApplyInferenceMode(true, MODEL_PATH);
+        }
+
+        [MenuItem("Tools/ML/Setup Inference Mode (v17 final)")]
+        public static void SetupInferenceModeV17Final()
+        {
+            const string MODEL_PATH = "Assets/ML-Models/SurvivorFighterAgent_v17_final.onnx";
+            ApplyInferenceMode(true, MODEL_PATH);
+        }
+
         [MenuItem("Tools/ML/Restore Training Mode")]
         public static void RestoreTrainingMode()
         {

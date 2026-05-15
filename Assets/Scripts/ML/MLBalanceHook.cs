@@ -32,6 +32,10 @@ namespace RGame.MLAgents
 
         public static bool IsActive => _sink != null;
 
+        // 단조 증가 카운터. Agent가 episode delta로 kill 보상을 정확히 받기 위해 사용한다.
+        // 폴링(enemySystem.Count delta) 방식은 spawn ≥ death 속도일 때 kill을 놓치므로 이 카운터로 대체.
+        public static int EnemyDeathCounter { get; private set; }
+
         public static void NotifyDamageDealt(Object enemy, int damage, string sourceSkillKey)
         {
             if (_sink == null) return;
@@ -46,6 +50,7 @@ namespace RGame.MLAgents
 
         public static void NotifyEnemyDeath(Object enemy, string lastSourceSkillKey)
         {
+            EnemyDeathCounter++;
             if (_sink == null) return;
             _sink.OnEnemyDeath(enemy, lastSourceSkillKey);
         }

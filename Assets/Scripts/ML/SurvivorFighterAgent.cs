@@ -42,20 +42,17 @@ namespace RGame.MLAgents
         private const float THREAT_PENALTY_CAP = -0.002f;         // 웨이브 폭증 시 스파이크 방지
         private const float THREAT_ATTACK_REF = 5f;
         private const float PROXIMITY_RANGE = 5f;              // 8 → 5: 즉시 위험 zone만
-        private const float STOP_PENALTY = -0.0003f;
+        private const float STOP_PENALTY = -0.001f;      // 정지 시 강력 페널티
         private const float STOP_SPEED_THRESHOLD = 0.2f;
+        private const float MOVEMENT_BONUS_MAX = 0.0008f; // input.magnitude=1.0 시 최대 보너스. 임계값 부근(0.2)이면 0.00016만.
         private const float COMBAT_BONUS = 0.0005f;
         private const float COMBAT_ZONE_MIN = 3f;
         private const float COMBAT_ZONE_MAX = 10f;
         private const float DANGER_ZONE_MAX = 3f;
         private const float SECTOR_OBS_RANGE = 12f;
         private const float SECTOR_OBS_MAX_COUNT = 5f;
-        // === v11: 맵 경계 ===
-        private const float MAP_HALF_EXTENT = 50f;          // Map1.asset 100×100 기준, 월드 ±50
-        private const float BOUNDARY_SAFE_RADIUS = 40f;     // 안쪽 안전 영역 (페널티 0)
-        private const float BOUNDARY_WARN_PENALTY_MAX = -0.005f;
-        private const float BOUNDARY_EXIT_THRESHOLD = 52f;  // 2 유닛 버퍼 후 에피소드 종료
-        private const float BOUNDARY_EXIT_PENALTY = -2f;
+        // 위치 obs 정규화에만 사용 (페널티 없음).
+        private const float MAP_HALF_EXTENT = 50f;
 
         private CommonStatRuntimeSO _stats;
         private EnemySystem _enemySystem;
@@ -73,13 +70,12 @@ namespace RGame.MLAgents
         private int _prevHp;
         private int _prevExp;
         private int _prevLevel;
-        private int _prevEnemyCount;
+        private int _prevDeathCount;
 
         private int _episodeKills;
         private int _episodeStartStep;
         private float _lastDiagLogTime;
         private bool _clearedTimeout;
-        private bool _boundaryExited;
 
         public void Inject(
             CommonStatRuntimeSO stats,
@@ -127,11 +123,10 @@ namespace RGame.MLAgents
                 _prevExp = _stats.GetValue("Exp");
                 _prevLevel = _stats.GetValue("Level");
             }
-            _prevEnemyCount = (_enemySystem != null) ? _enemySystem.GetEnemies().Count : 0;
+            _prevDeathCount = MLBalanceHook.EnemyDeathCounter;
             _episodeKills = 0;
             _episodeStartStep = StepCount;
             _clearedTimeout = false;
-            _boundaryExited = false;
         }
 
         public override void CollectObservations(VectorSensor sensor)
@@ -305,12 +300,15 @@ namespace RGame.MLAgents
                     ax, ay, moveSpeed, _playerRb.linearVelocity.x, _playerRb.linearVelocity.y, Time.timeScale));
             }
 
-            if (input.sqrMagnitude < STOP_SPEED_THRESHOLD * STOP_SPEED_THRESHOLD)
+            // 입력 크기에 비례한 이동 보상. 임계값 살짝 넘기는 "최소 노력" 행동에 작은 보상만 → 정책이 full-speed 이동으로 수렴.
+            float moveMag = Mathf.Min(1f, input.magnitude);
+            if (moveMag < STOP_SPEED_THRESHOLD)
                 AddReward(STOP_PENALTY);
+            else
+                AddReward(MOVEMENT_BONUS_MAX * moveMag);
 
             PollHpAndExpDeltas();
             ApplyProximityShaping();
-            ApplyBoundaryShaping();
             PollEnemyKills();
             CheckTimeoutClear();
         }
@@ -327,30 +325,6 @@ namespace RGame.MLAgents
             Debug.Log(string.Format("[Episode] CLEAR kills={0} steps={1} level={2}", _episodeKills, liveSteps, finalLevel));
             // OnGameOverRaised가 fire되어 씬 리로드 + EndEpisode 수행 (DEATH_REWARD는 flag로 스킵).
             if (_gameOverChannel != null) _gameOverChannel.RaiseEvent();
-        }
-
-        private void ApplyBoundaryShaping()
-        {
-            if (_playerTransform == null) return;
-            Vector3 p = _playerTransform.position;
-            float maxAbs = Mathf.Max(Mathf.Abs(p.x), Mathf.Abs(p.y));
-
-            if (maxAbs > BOUNDARY_EXIT_THRESHOLD)
-            {
-                if (_boundaryExited) return;
-                AddReward(BOUNDARY_EXIT_PENALTY);
-                _boundaryExited = true;
-                if (_gameOverChannel != null) _gameOverChannel.RaiseEvent();
-                return;
-            }
-
-            if (maxAbs > BOUNDARY_SAFE_RADIUS)
-            {
-                float t = Mathf.Clamp01(
-                    (maxAbs - BOUNDARY_SAFE_RADIUS) /
-                    (MAP_HALF_EXTENT - BOUNDARY_SAFE_RADIUS));
-                AddReward(BOUNDARY_WARN_PENALTY_MAX * t);
-            }
         }
 
         private void ApplyProximityShaping()
@@ -391,16 +365,16 @@ namespace RGame.MLAgents
 
         private void PollEnemyKills()
         {
-            if (_enemySystem == null) return;
-            int curCount = _enemySystem.GetEnemies().Count;
-            int delta = _prevEnemyCount - curCount;
-            // 정상 사망은 매 step 0~수 마리. 큰 양수(scene unload)나 음수(spawn) 무시.
-            if (delta > 0 && delta <= 5)
+            // 단조 증가 카운터(MLBalanceHook.EnemyDeathCounter) delta로 kill 정확히 추적.
+            // 폴링(EnemySystem.Count delta) 방식은 spawn ≥ death 속도일 때 kill을 놓치므로 대체.
+            int curCount = MLBalanceHook.EnemyDeathCounter;
+            int delta = curCount - _prevDeathCount;
+            if (delta > 0 && delta <= 20)
             {
                 AddReward(KILL_REWARD * delta);
                 _episodeKills += delta;
             }
-            _prevEnemyCount = curCount;
+            _prevDeathCount = curCount;
         }
 
         public override void Heuristic(in ActionBuffers actionsOut)
@@ -475,11 +449,6 @@ namespace RGame.MLAgents
             {
                 // 타임아웃으로 우리가 직접 raise한 케이스: DEATH 페널티 없이 reload만 진행.
                 Debug.Log(string.Format("[Episode] kills={0} steps={1} level={2} (timeout-clear)", _episodeKills, liveSteps, finalLevel));
-            }
-            else if (_boundaryExited)
-            {
-                // BOUNDARY_EXIT_PENALTY는 ApplyBoundaryShaping에서 이미 부여됨. DEATH_REWARD 중복 스킵.
-                Debug.Log(string.Format("[Episode] kills={0} steps={1} level={2} (boundary-exit)", _episodeKills, liveSteps, finalLevel));
             }
             else
             {

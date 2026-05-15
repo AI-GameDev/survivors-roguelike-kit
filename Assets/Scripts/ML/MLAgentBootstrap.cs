@@ -125,6 +125,23 @@ namespace RGame.MLAgents
                 _balanceLogger.SetPlayer(rootTf);
                 _balanceLogger.BeginEpisode();
             }
+
+            AttachMLCameraFollow(rootTf);
+        }
+
+        private void AttachMLCameraFollow(Transform target)
+        {
+            // ML 모드(학습/추론)에서는 맵 경계로 카메라가 멈추지 않게 한다.
+            // 기존 CameraFollow를 disable하고 경계 무시하는 MLCameraFollow를 부착.
+            var mainCam = Camera.main;
+            if (mainCam == null) return;
+            var original = mainCam.GetComponent<CameraFollow>();
+            if (original != null) original.enabled = false;
+            var mlFollow = mainCam.GetComponent<MLCameraFollow>();
+            if (mlFollow == null) mlFollow = mainCam.gameObject.AddComponent<MLCameraFollow>();
+            mlFollow.Target = target;
+            if (original != null) mlFollow.SmoothSpeed = original.SmoothSpeed;
+            mlFollow.enabled = true;
         }
 
         private void CreateBalanceLogger()
