@@ -147,6 +147,13 @@ namespace RGame.MLAgents
         private void CreateBalanceLogger()
         {
             if (!_enableBalanceLogger) return;
+            // 학습 모드(mlagents-learn 연결됨)에서는 PlayTrace 서버 부하를 피하기 위해 logger를 만들지 않는다.
+            // inference Play와 heuristic 수동 테스트에서만 활성화.
+            if (Academy.Instance.IsCommunicatorOn)
+            {
+                Debug.Log("[MLBoot] Balance logger skipped — training mode (Academy communicator on)");
+                return;
+            }
             _balanceLogger = gameObject.AddComponent<MLBalanceLogger>();
             string modelName = (_useInference && _inferenceModel != null) ? _inferenceModel.name : _behaviorName;
             _balanceLogger.Init(
