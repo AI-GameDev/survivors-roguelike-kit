@@ -53,7 +53,7 @@ namespace RGame.MLAgents
         // === v11: 맵 경계 ===
         private const float MAP_HALF_EXTENT = 50f;          // Map1.asset 100×100 기준, 월드 ±50
         private const float BOUNDARY_SAFE_RADIUS = 40f;     // 안쪽 안전 영역 (페널티 0)
-        private const float BOUNDARY_WARN_PENALTY_MAX = -0.002f;
+        private const float BOUNDARY_WARN_PENALTY_MAX = -0.02f;
         private const float BOUNDARY_EXIT_THRESHOLD = 52f;  // 2 유닛 버퍼 후 에피소드 종료
         private const float BOUNDARY_EXIT_PENALTY = -2f;
 
