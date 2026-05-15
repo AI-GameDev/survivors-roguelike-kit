@@ -79,6 +79,7 @@ namespace RGame.MLAgents
         private int _episodeStartStep;
         private float _lastDiagLogTime;
         private bool _clearedTimeout;
+        private bool _boundaryExited;
 
         public void Inject(
             CommonStatRuntimeSO stats,
@@ -130,6 +131,7 @@ namespace RGame.MLAgents
             _episodeKills = 0;
             _episodeStartStep = StepCount;
             _clearedTimeout = false;
+            _boundaryExited = false;
         }
 
         public override void CollectObservations(VectorSensor sensor)
@@ -335,8 +337,10 @@ namespace RGame.MLAgents
 
             if (maxAbs > BOUNDARY_EXIT_THRESHOLD)
             {
+                if (_boundaryExited) return;
                 AddReward(BOUNDARY_EXIT_PENALTY);
-                EndEpisode();
+                _boundaryExited = true;
+                if (_gameOverChannel != null) _gameOverChannel.RaiseEvent();
                 return;
             }
 
@@ -471,6 +475,11 @@ namespace RGame.MLAgents
             {
                 // 타임아웃으로 우리가 직접 raise한 케이스: DEATH 페널티 없이 reload만 진행.
                 Debug.Log(string.Format("[Episode] kills={0} steps={1} level={2} (timeout-clear)", _episodeKills, liveSteps, finalLevel));
+            }
+            else if (_boundaryExited)
+            {
+                // BOUNDARY_EXIT_PENALTY는 ApplyBoundaryShaping에서 이미 부여됨. DEATH_REWARD 중복 스킵.
+                Debug.Log(string.Format("[Episode] kills={0} steps={1} level={2} (boundary-exit)", _episodeKills, liveSteps, finalLevel));
             }
             else
             {
