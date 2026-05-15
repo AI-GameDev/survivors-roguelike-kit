@@ -457,24 +457,57 @@ unity-cli editor stop
 unity-cli editor stop
 ```
 
-### 10-2. 모델 복사
+### 10-2. 모델 복사 (best-by-reward + final 둘 다 배포)
+
+학습이 끝났을 때 "가장 최근 체크포인트(final)"가 반드시 가장 좋은 모델은 아니다. PPO는 정책 진동이 필연이고, 후반에 collapse하거나 점진적 degradation이 일어날 수 있다. **TensorBoard event 파일에서 step별 reward를 읽어 best step의 .onnx와 final .onnx를 둘 다 배포**한다.
 
 ```bash
-# 가장 최근 결과 폴더의 .onnx 파일 찾기
 LATEST_RUN=$(ls -t ml-training/results/ | head -1)
-ONNX_FILE=$(ls ml-training/results/$LATEST_RUN/*.onnx 2>/dev/null | head -1)
+BEHAVIOR_DIR="ml-training/results/$LATEST_RUN/<BehaviorName>"
 
-if [ -n "$ONNX_FILE" ]; then
-  cp "$ONNX_FILE" Assets/ML-Models/
-  unity-cli editor refresh
-fi
+# 1. TensorBoard에서 best step 찾기
+BEST_STEP=$(cd ml-training && source .venv/bin/activate && python3 -c "
+from tensorboard.backend.event_processing import event_accumulator
+ea = event_accumulator.EventAccumulator('results/$LATEST_RUN/<BehaviorName>', size_guidance={'scalars': 0})
+ea.Reload()
+evs = ea.Scalars('Environment/Cumulative Reward')
+# Optional smoothing: 마지막 3개 평균으로 noise 완화 (희소 보상 환경에 권장)
+# import statistics; smoothed = [(e.step, statistics.mean(v.value for v in evs[max(0,i-2):i+1])) for i,e in enumerate(evs)]
+best = max(evs, key=lambda e: e.value)
+print(best.step)
+")
+
+# 2. best step에 가장 가까운 체크포인트 파일 찾기
+BEST_ONNX=$(ls $BEHAVIOR_DIR/<BehaviorName>-*.onnx | xargs -I {} basename {} .onnx | sed 's/<BehaviorName>-//' | sort -n | awk -v t=$BEST_STEP '{
+  diff = $1 - t; if (diff < 0) diff = -diff
+  if (NR==1 || diff < min) { min = diff; closest = $1 }
+} END { print closest }')
+
+# 3. 둘 다 복사: best + final
+cp "$BEHAVIOR_DIR/<BehaviorName>-$BEST_ONNX.onnx" "Assets/ML-Models/<BehaviorName>_${LATEST_RUN}_best.onnx"
+FINAL_ONNX=$(ls -t $BEHAVIOR_DIR/<BehaviorName>-*.onnx | head -1)
+cp "$FINAL_ONNX" "Assets/ML-Models/<BehaviorName>_${LATEST_RUN}_final.onnx"
+
+unity-cli editor refresh
+
+# 4. Top 3 후보를 사용자에게 보고 (선택지 제공)
+python3 -c "...top 3 by reward..." # step별 reward 순위 출력
 ```
+
+**Caveats (이 로직이 부적절한 경우):**
+- **희소/지연 보상 환경**: 단일 batch max는 outlier일 수 있음 → smoothed reward(rolling mean) 사용
+- **std 매우 낮은 peak** (예: <1): lucky batch 가능성 → top 3~5 중 std가 적당한 (3~5) peak가 더 robust할 수 있음
+- **Self-play/multi-agent**: reward가 절대 지표 아님 (상대 강도) → ELO/win rate 등 별도 평가 필요. 이 경우 best-by-reward 비활성화하고 final + checkpoint snapshots 배포
+- **탐색/오픈월드/curriculum**: reward shaping이 실제 행동 품질을 반영 못 함 → 사용자에게 수동 선택 위임
+
+→ **권장 기본 동작**: best + final 둘 다 배포 + Top 3 후보 보고. 사용자가 게임/장르 특성 보고 best/final 중 inference에 쓸 모델 선택.
 
 ### 10-3. Inference 모드 전환 옵션
 
 사용자에게:
-- "학습된 모델로 Inference 모드 전환할까요?"
-- 동의 시: `unity-cli menu "Tools/ML/Setup Inference Mode"`
+- "학습된 모델로 Inference 모드 전환할까요? (best / final 중 선택)"
+- 동의 시: `unity-cli menu "Tools/ML/Setup Inference Mode (best)"` 또는 `(final)`
+- Editor 메뉴에 해당 항목이 없으면 `SetupSurvivorFighterTraining.cs`(또는 동등 Editor 스크립트)에 best/final 메뉴 자동 추가
 
 ### 10-4. 최종 보고
 
@@ -490,13 +523,22 @@ cmux notify --title "🎉 ML-Agents 학습 완료" --body "Final reward: $FINAL_
 
 - Run ID: <name>_<timestamp>
 - Total steps: 5,000,000
-- Final Mean Reward: 0.812
+- Final Mean Reward: 0.812 (step <final_step>)
+- **Best Mean Reward: 0.953 (step <best_step>)** ← inference 기본 추천
 - 학습 시간: 4시간 23분
-- 모델: Assets/ML-Models/<Behavior>.onnx
+- 모델:
+  - Best: Assets/ML-Models/<Behavior>_<run-id>_best.onnx
+  - Final: Assets/ML-Models/<Behavior>_<run-id>_final.onnx
+
+Top 3 reward peaks:
+  step=<s1> reward=<r1>
+  step=<s2> reward=<r2>
+  step=<s3> reward=<r3>
 
 TensorBoard 결과: ml-training/results/<run-id>/
 다음 단계:
-- 게임 씬에서 모델 테스트 (Inference Mode 자동 적용 옵션 선택)
+- 게임 씬에서 best 모델 테스트 (Inference Mode 자동 적용 옵션 선택)
+- best vs final 비교가 필요하면 메뉴에서 전환
 - 추가 학습: /ml-start --resume <run-id>
 ```
 
