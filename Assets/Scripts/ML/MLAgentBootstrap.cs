@@ -145,7 +145,7 @@ namespace RGame.MLAgents
 
             var bp = _rig.AddComponent<BehaviorParameters>();
             bp.BehaviorName = _behaviorName;
-            bp.BrainParameters.VectorObservationSize = 29;
+            bp.BrainParameters.VectorObservationSize = 39;
             bp.BrainParameters.ActionSpec = ActionSpec.MakeContinuous(2);
             if (_useInference && _inferenceModel != null)
             {

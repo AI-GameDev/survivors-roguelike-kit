@@ -21,8 +21,8 @@ namespace RGame.MLAgents
     [RequireComponent(typeof(Unity.MLAgents.Policies.BehaviorParameters))]
     public class SurvivorFighterAgent : Agent
     {
-        // 11 base obs (vel.x, vel.y, hpRatio, levelNorm, stepProgress, top2 XP × 3) + 3 enemies × 6 = 29.
-        private const int VECTOR_OBS_SIZE = 29;
+        // 11 base obs (vel.x, vel.y, hpRatio, levelNorm, stepProgress, top2 XP × 3) + 3 enemies × 6 + 8 sectors + 2 position = 39.
+        private const int VECTOR_OBS_SIZE = 39;
         private const float ENEMY_HP_NORM = 200f;
         private const float ENEMY_ATTACK_NORM = 20f;
         private const float ENEMY_SPEED_NORM = 30f;
@@ -32,15 +32,30 @@ namespace RGame.MLAgents
         private const float NEAREST_ENEMY_RANGE = 12f;
         private const float XP_OBS_RANGE = 12f;
         private const float STEP_REWARD = 0f;
-        private const float HP_LOSS_REWARD_PER_POINT = -0.15f;
+        private const float HP_LOSS_REWARD_PER_POINT = -0.05f;   // -0.15 → -0.05: 피격 페널티 완화
         private const float XP_GAIN_REWARD_SCALE = 1.0f;
         private const float DEATH_REWARD = -3.0f;
-        private const float KILL_REWARD = 0.15f;
+        private const float KILL_REWARD = 0.5f;                   // 0.15 → 0.5: 전투 인센티브 강화
         private const float CLEAR_REWARD = 2.0f;
-        // Threat penalty: -0.0005 × (enemyAtk / 5) × (1 - dist/8). 약적 Atk=5 → 1배, 강적 Atk=20 → 4배.
-        private const float THREAT_BASE_PENALTY = -0.0005f;
+        // Threat penalty: -0.0001 × (enemyAtk / 5) × (1 - dist/8), capped at -0.002/step.
+        private const float THREAT_BASE_PENALTY = -0.0001f;       // -0.0005 → -0.0001: 1/5로 완화
+        private const float THREAT_PENALTY_CAP = -0.002f;         // 웨이브 폭증 시 스파이크 방지
         private const float THREAT_ATTACK_REF = 5f;
-        private const float PROXIMITY_RANGE = 8f;
+        private const float PROXIMITY_RANGE = 5f;              // 8 → 5: 즉시 위험 zone만
+        private const float STOP_PENALTY = -0.0003f;
+        private const float STOP_SPEED_THRESHOLD = 0.2f;
+        private const float COMBAT_BONUS = 0.0005f;
+        private const float COMBAT_ZONE_MIN = 3f;
+        private const float COMBAT_ZONE_MAX = 10f;
+        private const float DANGER_ZONE_MAX = 3f;
+        private const float SECTOR_OBS_RANGE = 12f;
+        private const float SECTOR_OBS_MAX_COUNT = 5f;
+        // === v11: 맵 경계 ===
+        private const float MAP_HALF_EXTENT = 50f;          // Map1.asset 100×100 기준, 월드 ±50
+        private const float BOUNDARY_SAFE_RADIUS = 40f;     // 안쪽 안전 영역 (페널티 0)
+        private const float BOUNDARY_WARN_PENALTY_MAX = -0.002f;
+        private const float BOUNDARY_EXIT_THRESHOLD = 52f;  // 2 유닛 버퍼 후 에피소드 종료
+        private const float BOUNDARY_EXIT_PENALTY = -2f;
 
         private CommonStatRuntimeSO _stats;
         private EnemySystem _enemySystem;
@@ -140,9 +155,10 @@ namespace RGame.MLAgents
 
             // Top 3 enemies (each: dist, dirX, dirY, hpRatio, attackNorm, speedNorm = 18 obs). 부족하면 (1,0,0,0,0,0)으로 패딩.
             Vector3 playerPos = _playerTransform != null ? _playerTransform.position : Vector3.zero;
+            List<BaseEnemy> nearest = null;
             if (_enemySystem != null && _playerTransform != null)
             {
-                List<BaseEnemy> nearest = _enemySystem.GetNearestEnemies(playerPos, NEAREST_ENEMY_RANGE, NEAREST_ENEMY_RANGE);
+                nearest = _enemySystem.GetNearestEnemies(playerPos, NEAREST_ENEMY_RANGE, NEAREST_ENEMY_RANGE);
                 int count = Mathf.Min(TOP_ENEMY_COUNT, nearest.Count);
                 for (int i = 0; i < count; i++)
                 {
@@ -233,6 +249,30 @@ namespace RGame.MLAgents
                     sensor.AddObservation(1f); sensor.AddObservation(0f); sensor.AddObservation(0f);
                 }
             }
+
+            // 8방향 위협 밀도 (E/NE/N/NW/W/SW/S/SE, 45° 구간, 정규화)
+            float[] sectors = new float[8];
+            if (nearest != null)
+            {
+                for (int i = 0; i < nearest.Count; i++)
+                {
+                    if (nearest[i] == null) continue;
+                    Vector3 diff = nearest[i].transform.position - playerPos;
+                    float dist2D = Mathf.Sqrt(diff.x * diff.x + diff.y * diff.y);
+                    if (dist2D > SECTOR_OBS_RANGE || dist2D < 0.1f) continue;
+                    float angle = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
+                    if (angle < 0f) angle += 360f;
+                    sectors[(int)(angle / 45f) % 8] += 1f;
+                }
+            }
+            for (int i = 0; i < 8; i++)
+                sensor.AddObservation(Mathf.Clamp01(sectors[i] / SECTOR_OBS_MAX_COUNT));
+
+            // v11: 정규화된 절대 위치 (-1.2 ~ +1.2)
+            float px = _playerTransform != null ? _playerTransform.position.x : 0f;
+            float py = _playerTransform != null ? _playerTransform.position.y : 0f;
+            sensor.AddObservation(Mathf.Clamp(px / MAP_HALF_EXTENT, -1.2f, 1.2f));
+            sensor.AddObservation(Mathf.Clamp(py / MAP_HALF_EXTENT, -1.2f, 1.2f));
         }
 
         public override void OnActionReceived(ActionBuffers actions)
@@ -263,10 +303,12 @@ namespace RGame.MLAgents
                     ax, ay, moveSpeed, _playerRb.linearVelocity.x, _playerRb.linearVelocity.y, Time.timeScale));
             }
 
-            AddReward(STEP_REWARD);
+            if (input.sqrMagnitude < STOP_SPEED_THRESHOLD * STOP_SPEED_THRESHOLD)
+                AddReward(STOP_PENALTY);
 
             PollHpAndExpDeltas();
             ApplyProximityShaping();
+            ApplyBoundaryShaping();
             PollEnemyKills();
             CheckTimeoutClear();
         }
@@ -285,31 +327,62 @@ namespace RGame.MLAgents
             if (_gameOverChannel != null) _gameOverChannel.RaiseEvent();
         }
 
+        private void ApplyBoundaryShaping()
+        {
+            if (_playerTransform == null) return;
+            Vector3 p = _playerTransform.position;
+            float maxAbs = Mathf.Max(Mathf.Abs(p.x), Mathf.Abs(p.y));
+
+            if (maxAbs > BOUNDARY_EXIT_THRESHOLD)
+            {
+                AddReward(BOUNDARY_EXIT_PENALTY);
+                EndEpisode();
+                return;
+            }
+
+            if (maxAbs > BOUNDARY_SAFE_RADIUS)
+            {
+                float t = Mathf.Clamp01(
+                    (maxAbs - BOUNDARY_SAFE_RADIUS) /
+                    (MAP_HALF_EXTENT - BOUNDARY_SAFE_RADIUS));
+                AddReward(BOUNDARY_WARN_PENALTY_MAX * t);
+            }
+        }
+
         private void ApplyProximityShaping()
         {
             if (_playerTransform == null || _enemySystem == null) return;
             Vector3 pos = _playerTransform.position;
 
-            // Threat proximity: PROXIMITY_RANGE 이내 모든 적에 대해 (공격력/5) × (1 - 거리/range) 누적 페널티.
-            // 강적(Attack 큼)일수록 + 가까울수록 큰 페널티 → 정책이 강적 회피를 학습.
-            var nearest = _enemySystem.GetNearestEnemies(pos, PROXIMITY_RANGE, PROXIMITY_RANGE);
+            // 12m 이내 적을 한 번 조회해 threat/danger/combat을 한 패스로 계산.
+            var nearby = _enemySystem.GetNearestEnemies(pos, SECTOR_OBS_RANGE, SECTOR_OBS_RANGE);
             float threatSum = 0f;
-            for (int i = 0; i < nearest.Count; i++)
+            int dangerCount = 0;
+            int combatCount = 0;
+            for (int i = 0; i < nearby.Count; i++)
             {
-                var e = nearest[i];
+                var e = nearby[i];
                 if (e == null) continue;
                 float d = Vector3.Distance(pos, e.transform.position);
-                float close = 1f - Mathf.Clamp01(d / PROXIMITY_RANGE);
-                if (close <= 0f) continue;
-                float atk = THREAT_ATTACK_REF;
-                var st = e.StatRuntime;
-                if (st != null) atk = Mathf.Max(1f, (float)st.GetValue("Attack"));
-                threatSum += (atk / THREAT_ATTACK_REF) * close;
+
+                // Threat penalty: PROXIMITY_RANGE(5m) 이내, 강적·근접일수록 강함
+                if (d < PROXIMITY_RANGE)
+                {
+                    float close = 1f - Mathf.Clamp01(d / PROXIMITY_RANGE);
+                    float atk = THREAT_ATTACK_REF;
+                    var st = e.StatRuntime;
+                    if (st != null) atk = Mathf.Max(1f, (float)st.GetValue("Attack"));
+                    threatSum += (atk / THREAT_ATTACK_REF) * close;
+                }
+
+                if (d < DANGER_ZONE_MAX) dangerCount++;
+                if (d >= COMBAT_ZONE_MIN && d <= COMBAT_ZONE_MAX) combatCount++;
             }
             if (threatSum > 0f)
-            {
-                AddReward(THREAT_BASE_PENALTY * threatSum);
-            }
+                AddReward(Mathf.Max(THREAT_BASE_PENALTY * threatSum, THREAT_PENALTY_CAP));
+            // Kiting bonus: 공격 범위(3~10m) 안에 적 있고 즉시 위험(0~3m) 없을 때
+            if (combatCount > 0 && dangerCount == 0)
+                AddReward(COMBAT_BONUS);
         }
 
         private void PollEnemyKills()

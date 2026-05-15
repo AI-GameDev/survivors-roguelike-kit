@@ -116,6 +116,48 @@ namespace RGame.MLAgents.EditorTools
             ApplyInferenceMode(true, MODEL_PATH);
         }
 
+        [MenuItem("Tools/ML/Setup Inference Mode (v9 final)")]
+        public static void SetupInferenceModeV9Final()
+        {
+            const string MODEL_PATH = "Assets/ML-Models/SurvivorFighterAgent_v9_final.onnx";
+            ApplyInferenceMode(true, MODEL_PATH);
+        }
+
+        [MenuItem("Tools/ML/Setup Inference Mode (v9 best)")]
+        public static void SetupInferenceModeV9Best()
+        {
+            const string MODEL_PATH = "Assets/ML-Models/SurvivorFighterAgent_v9_best.onnx";
+            ApplyInferenceMode(true, MODEL_PATH);
+        }
+
+        [MenuItem("Tools/ML/Setup Inference Mode (v10 final)")]
+        public static void SetupInferenceModeV10Final()
+        {
+            const string MODEL_PATH = "Assets/ML-Models/SurvivorFighterAgent_v10_final.onnx";
+            ApplyInferenceMode(true, MODEL_PATH);
+        }
+
+        [MenuItem("Tools/ML/Setup Inference Mode (v10 best)")]
+        public static void SetupInferenceModeV10Best()
+        {
+            const string MODEL_PATH = "Assets/ML-Models/SurvivorFighterAgent_v10_best.onnx";
+            ApplyInferenceMode(true, MODEL_PATH);
+        }
+
+        [MenuItem("Tools/ML/Setup Inference Mode (v11 final)")]
+        public static void SetupInferenceModeV11Final()
+        {
+            const string MODEL_PATH = "Assets/ML-Models/SurvivorFighterAgent_v11_final.onnx";
+            ApplyInferenceMode(true, MODEL_PATH);
+        }
+
+        [MenuItem("Tools/ML/Setup Inference Mode (v11 best)")]
+        public static void SetupInferenceModeV11Best()
+        {
+            const string MODEL_PATH = "Assets/ML-Models/SurvivorFighterAgent_v11_best.onnx";
+            ApplyInferenceMode(true, MODEL_PATH);
+        }
+
         [MenuItem("Tools/ML/Restore Training Mode")]
         public static void RestoreTrainingMode()
         {
