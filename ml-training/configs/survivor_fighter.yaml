@@ -42,8 +42,8 @@ engine_settings:
   capture_frame_rate: 60
   no_graphics: false
 checkpoint_settings:
-  run_id: survivor_fighter_v11
-  initialize_from: null
+  run_id: survivor_fighter_v12
+  initialize_from: survivor_fighter_v11
   load_model: false
   resume: false
   force: true
