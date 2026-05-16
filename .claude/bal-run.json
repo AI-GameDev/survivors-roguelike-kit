@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "project_name": "survivors-roguelike-kit",
+  "play_end_key": "episode.cause",
+  "chart_keys": [
+    "episode.duration_sec",
+    "episode.final_level",
+    "episode.total_kills",
+    "episode.total_damage_taken",
+    "event.enemy_spawn.actual_rate",
+    "stage.active_enemy_count"
+  ],
+  "summary_columns": [
+    {"label": "Dur(s)", "key": "episode.duration_sec"},
+    {"label": "Lvl", "key": "episode.final_level"},
+    {"label": "Kills", "key": "episode.total_kills"},
+    {"label": "DmgTaken", "key": "episode.total_damage_taken"},
+    {"label": "EXP", "key": "episode.final_exp"},
+    {"label": "Killer", "key": "episode.last_hit_attacker"},
+    {"label": "NearEnemy", "key": "episode.nearest_enemy_key"},
+    {"label": "Dist", "key": "episode.nearest_enemy_distance"}
+  ]
+}
