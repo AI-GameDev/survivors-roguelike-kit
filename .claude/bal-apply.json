@@ -59,9 +59,10 @@
       "id": "player_max_hp",
       "label": "Player max HP",
       "triggers": ["high_damage_taken_variance", "rapid_death"],
-      "asset_glob": "Assets/RGame/RoguelikeKit/ScriptableObjects/DataSO/Player/**/*.asset",
+      "asset_glob": "Assets/RGame/RoguelikeKit/ScriptableObjects/DataSO/Player/PlayerStat.asset",
       "asset_match": {
-        "type": "value_config_named"
+        "type": "value_config_named",
+        "note": "PlayerRuntimeStat is the runtime mutable copy and should not be edited; glob narrowed to the design-time PlayerStat asset only."
       },
       "field_path": "ValueDefinitions[ValueName=HP].DefaultValue",
       "adjust_default": 0.1,

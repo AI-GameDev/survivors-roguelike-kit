@@ -462,6 +462,43 @@ CSHARP
 
 returned 값을 사용자에게 표시 (`old->new`). `NOT_FOUND`, `NO_FIELD`, `NO_SUB`, `NO_MATCH`, `NO_ARRAY`, `UNSUPPORTED_TYPE:<type>` 등의 sentinel은 사용자에게 알리고 skip. `UNSUPPORTED_TYPE` 가 자주 발생하면 해당 knob의 자산을 직접 열어 필드 타입을 확인하고 — 필요하면 핸들러를 위 switch에 추가.
 
+### Derived target for spawn_rate (설계 / 미구현)
+
+`enemy_damage` knob은 PlayTrace 의 `episode.last_hit_attacker` 가 직접 자산명을 알려준다 (`"Gear"` → `Gear.asset`). `spawn_rate` 는 그런 직접 키가 없어 `structural_duration_cutoff` finding이 트리거되어도 31개 SpawnSet 중 무엇을 줄여야 할지 모른다 — 현재 skip 된다.
+
+해결책 (구현 대기 중): `event.enemy_spawn.set_key` (text) 와 `event.enemy_spawn.actual_rate` (number) 를 활용해 **사망 직전 K초에서 가장 자주 활성이었던 SpawnSet** 을 derived target 으로 뽑는다.
+
+```python
+# 의사 코드 — 향후 'derived' asset_match 타입 구현 시 참고
+K = 5  # seconds before death
+derived_targets = []
+for play_no, play_logs in by_play.items():
+    death_ts = max(l['timestamp'] for l in play_logs if l['key'] == 'episode.cause')
+    window = [l for l in play_logs
+              if l['key'] == 'event.enemy_spawn.set_key'
+              and death_ts - K*1000 <= l['timestamp'] <= death_ts]
+    if window:
+        top = collections.Counter(l['value_text'] for l in window).most_common(1)[0][0]
+        derived_targets.append(top)
+# 모든 play 에서 일관되게 동일 set_key가 나오면 신뢰도 높음 → target
+chosen = collections.Counter(derived_targets).most_common(1)[0][0] if derived_targets else None
+```
+
+Config 측 schema 변경 (제안):
+
+```json
+"asset_match": {
+  "type": "value_config_named",
+  "name_mode": "filename",
+  "name_match_log_key": "event.enemy_spawn.set_key",
+  "name_match_window": {"anchor": "episode.cause", "before_sec": 5, "agg": "mode"}
+}
+```
+
+구현 작업: ① `name_match_window` 인식 → ② 진단 페이즈에서 derived_target 계산 → ③ `edit_one_knob` 의 `TARGET_VALUE` 로 주입.
+
+스킬 한 줄 평: spawn 시계열 데이터는 이미 PlayTrace 에 들어와 있고, 부족한 건 위 추출 로직과 schema 합의뿐.
+
 ---
 
 ## Git diff 프리뷰
