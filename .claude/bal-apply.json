@@ -20,7 +20,7 @@
         "name_mode": "filename",
         "name_match_log_key": "episode.last_hit_attacker"
       },
-      "field_path": "ValueDefinitions[ValueName=Damage].DefaultValue",
+      "field_path": "ValueDefinitions[ValueName=Attack].DefaultValue",
       "adjust_default": -0.15,
       "adjust_range": [-0.5, 0.5]
     },
@@ -41,7 +41,7 @@
       "id": "spawn_rate",
       "label": "Spawn base rate",
       "triggers": ["spawn_cliff", "structural_duration_cutoff"],
-      "asset_glob": "Assets/RGame/RoguelikeKit/ScriptableObjects/DataSO/Level/Stages/**/*.asset",
+      "asset_glob": "Assets/RGame/RoguelikeKit/ScriptableObjects/DataSO/Level/Stages/StageSet/**/*.asset",
       "field_path": "BaseRatePerSecond",
       "adjust_default": -0.2,
       "adjust_range": [-0.5, 0.5]
@@ -50,7 +50,7 @@
       "id": "spawn_intensity_curve",
       "label": "Spawn intensity curve (manual)",
       "triggers": ["spawn_cliff", "structural_duration_cutoff"],
-      "asset_glob": "Assets/RGame/RoguelikeKit/ScriptableObjects/DataSO/Level/Stages/**/*.asset",
+      "asset_glob": "Assets/RGame/RoguelikeKit/ScriptableObjects/DataSO/Level/Stages/StageSet/**/*.asset",
       "field_path": "IntensityCurve",
       "action": "open_in_unity",
       "note": "AnimationCurve는 Unity Editor에서 직접 시각 편집 권장. 자동 적용 안 함."
