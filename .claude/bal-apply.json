@@ -56,6 +56,16 @@
       "note": "AnimationCurve는 Unity Editor에서 직접 시각 편집 권장. 자동 적용 안 함."
     },
     {
+      "id": "level_up_xp_increment",
+      "label": "Level-up XP increment",
+      "triggers": ["level_cap_low"],
+      "asset_glob": "Assets/RGame/RoguelikeKit/ScriptableObjects/DataSO/Exp/ExpConfig.asset",
+      "field_path": "experienceIncrement",
+      "adjust_default": -0.2,
+      "adjust_range": [-0.5, 0.5],
+      "note": "ExpConfig.GetExperienceForLevel = baseExperience + (level-1) * experienceIncrement. Reducing the increment lowers the per-level XP cost growth, helping players reach higher levels in the same playtime."
+    },
+    {
       "id": "player_max_hp",
       "label": "Player max HP",
       "triggers": ["high_damage_taken_variance", "rapid_death"],
