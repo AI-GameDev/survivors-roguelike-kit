@@ -108,12 +108,13 @@ namespace RGame.RoguelikeKit
                 float intensity = spawnSet.IntensityCurve.Evaluate(t01);
                 float curseMul = statRuntime != null ? statRuntime.GetValue("Curse") * 0.01f : 1f;
 
-                float addBudget = set.BaseRatePerSecond * intensity * curseMul * Time.deltaTime;
+                float actualRate = set.BaseRatePerSecond * intensity * curseMul;
+                float addBudget = actualRate * Time.deltaTime;
                 _accumulators[set] += addBudget;
 
                 while (_accumulators[set] >= 1f)
                 {
-                    RandomSpawnEnemy(set, intensity);
+                    RandomSpawnEnemy(set, intensity, actualRate);
                     _accumulators[set] -= 1f;
                 }
 
@@ -121,7 +122,7 @@ namespace RGame.RoguelikeKit
             }
         }
 
-        private void RandomSpawnEnemy(SpawnSet set, float intensity = 1f)
+        private void RandomSpawnEnemy(SpawnSet set, float intensity = 1f, float actualRate = -1f)
         {
             EnemySpawnInfo info = PickRandom(set.Entries);
             if (info == null) return;
@@ -132,7 +133,7 @@ namespace RGame.RoguelikeKit
             enemy.OnDeath += HandleEnemyDeath;
             enemySystem.AddEnemy(enemy);
             _aliveCount++;
-            MLBalanceHook.NotifyEnemySpawn(info.PoolKey, go.transform.position, _elapsed, intensity);
+            MLBalanceHook.NotifyEnemySpawn(info.PoolKey, go.transform.position, _elapsed, intensity, actualRate, set.name);
         }
 
         private void CircleSpawnEnemy(SpawnSet set, int count)
@@ -148,7 +149,7 @@ namespace RGame.RoguelikeKit
                 BaseEnemy enemy = go.GetComponent<BaseEnemy>();
                 enemy.OnDeath += HandleEnemyDeath;
                 enemySystem.AddEnemy(enemy);
-                MLBalanceHook.NotifyEnemySpawn(info.PoolKey, go.transform.position, _elapsed, 1f);
+                MLBalanceHook.NotifyEnemySpawn(info.PoolKey, go.transform.position, _elapsed, 1f, -1f, set.name);
             }
             _aliveCount += count;
         }
@@ -166,11 +167,11 @@ namespace RGame.RoguelikeKit
                 BaseEnemy enemy = go.GetComponent<BaseEnemy>();
                 enemy.OnDeath += HandleEnemyDeath;
                 enemySystem.AddEnemy(enemy);
-                MLBalanceHook.NotifyEnemySpawn(info.PoolKey, go.transform.position, _elapsed, 1f);
+                MLBalanceHook.NotifyEnemySpawn(info.PoolKey, go.transform.position, _elapsed, 1f, -1f, set.name);
             }
             _aliveCount += count;
         }
-        
+
         private void HandleEnemyDeath(BaseEnemy enemy)
         {
             if (!enemy) return;

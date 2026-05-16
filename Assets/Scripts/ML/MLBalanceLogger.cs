@@ -42,6 +42,7 @@ namespace RGame.MLAgents
 
         private int _prevLevel;
         private int _episodeDamageTaken;
+        private float _lastEnemyCountPollTime;
 
         // 사망 컨텍스트
         private string _lastDamageTakenSourceKey;
@@ -114,6 +115,7 @@ namespace RGame.MLAgents
             _lastDamageTakenAttackKind = null;
             _recent5sDamageTaken = 0f;
             _recent5sStartTime = _episodeStartTime;
+            _lastEnemyCountPollTime = _episodeStartTime;
 
             Debug.Log("[MLLogger] BeginEpisode play_no=" + CurrentPlayNo);
         }
@@ -208,6 +210,18 @@ namespace RGame.MLAgents
                     _prevLevel = curLevel;
                 }
             }
+
+            // 1초 주기로 stage.active_enemy_count 시계열 송신
+            if (now - _lastEnemyCountPollTime >= 1f)
+            {
+                _lastEnemyCountPollTime = now;
+                if (_enemySystem != null)
+                {
+                    var enemies = _enemySystem.GetEnemies();
+                    int count = enemies != null ? enemies.Count : 0;
+                    SendLog(CurrentPlayNo, "stage.active_enemy_count", count);
+                }
+            }
         }
 
         // ============= ISink =============
@@ -237,10 +251,13 @@ namespace RGame.MLAgents
             SendLog(CurrentPlayNo, "event.enemy_death", 1);
         }
 
-        public void OnEnemySpawn(string enemyKey, Vector3 position, float gameTimeSec, float intensity)
+        public void OnEnemySpawn(string enemyKey, Vector3 position, float gameTimeSec, float intensity, float actualRate, string setKey)
         {
             if (!_episodeActive) return;
-            SendLog(CurrentPlayNo, "event.enemy_spawn.intensity", intensity);
+            int playNo = CurrentPlayNo;
+            SendLog(playNo, "event.enemy_spawn.intensity", intensity);
+            if (actualRate >= 0f) SendLog(playNo, "event.enemy_spawn.actual_rate", actualRate);
+            if (!string.IsNullOrEmpty(setKey)) SendLog(playNo, "event.enemy_spawn.set_key", setKey);
         }
 
         // ============= 채널 핸들러 =============

@@ -18,7 +18,7 @@ namespace RGame.MLAgents
             void OnDamageDealt(Object enemy, int damage, string sourceSkillKey);
             void OnDamageTaken(int damage, string attackerEnemyKey, string attackKind);
             void OnEnemyDeath(Object enemy, string lastSourceSkillKey);
-            void OnEnemySpawn(string enemyKey, Vector3 position, float gameTimeSec, float intensity);
+            void OnEnemySpawn(string enemyKey, Vector3 position, float gameTimeSec, float intensity, float actualRate, string setKey);
         }
 
         private static ISink _sink;
@@ -55,10 +55,10 @@ namespace RGame.MLAgents
             _sink.OnEnemyDeath(enemy, lastSourceSkillKey);
         }
 
-        public static void NotifyEnemySpawn(string enemyKey, Vector3 position, float gameTimeSec, float intensity)
+        public static void NotifyEnemySpawn(string enemyKey, Vector3 position, float gameTimeSec, float intensity, float actualRate, string setKey)
         {
             if (_sink == null) return;
-            _sink.OnEnemySpawn(enemyKey, position, gameTimeSec, intensity);
+            _sink.OnEnemySpawn(enemyKey, position, gameTimeSec, intensity, actualRate, setKey);
         }
     }
 }
