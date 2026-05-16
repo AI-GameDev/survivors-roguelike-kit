@@ -385,55 +385,82 @@ EOF
 }
 
 apply_scalar_field() {
-  local PATH="$1" FIELD="$2" ADJUST="$3"
-  unity-cli exec "
-    var asset = AssetDatabase.LoadAssetAtPath<ScriptableObject>(\"$PATH\");
-    if (asset == null) return \"NOT_FOUND\";
-    var so = new SerializedObject(asset);
-    var p = so.FindProperty(\"$FIELD\");
-    if (p == null) return \"NO_FIELD\";
-    float old = p.floatValue;
-    p.floatValue = old * (1f + ($ADJUST)f);
-    so.ApplyModifiedProperties();
-    EditorUtility.SetDirty(asset);
-    AssetDatabase.SaveAssets();
-    return old.ToString(\"F3\") + \"->\" + p.floatValue.ToString(\"F3\");
-  " --usings UnityEditor,UnityEngine
+  local ASSET_PATH="$1" FIELD="$2" ADJUST="$3"
+  # IMPORTANT: pass C# via stdin (heredoc), NOT as a quoted argument.
+  # Multi-line scripts passed as a "..." arg to `unity-cli exec` hang the
+  # process indefinitely; stdin is the supported form (see `unity-cli --help`).
+  # Bash variables expand inside the unquoted heredoc.
+  unity-cli exec --usings UnityEditor,UnityEngine <<CSHARP
+float adjust = ${ADJUST}f;
+var asset = AssetDatabase.LoadAssetAtPath<ScriptableObject>("$ASSET_PATH");
+if (asset == null) return "NOT_FOUND";
+var so = new SerializedObject(asset);
+var p = so.FindProperty("$FIELD");
+if (p == null) return "NO_FIELD";
+string result;
+if (p.propertyType == SerializedPropertyType.Float) {
+  float old = p.floatValue;
+  p.floatValue = old * (1f + adjust);
+  result = old.ToString("F3") + "->" + p.floatValue.ToString("F3");
+} else if (p.propertyType == SerializedPropertyType.Integer) {
+  int old = p.intValue;
+  p.intValue = Mathf.Max(0, Mathf.RoundToInt(old * (1f + adjust)));
+  result = old + "->" + p.intValue;
+} else {
+  return "UNSUPPORTED_TYPE:" + p.propertyType;
+}
+so.ApplyModifiedProperties();
+EditorUtility.SetDirty(asset);
+AssetDatabase.SaveAssets();
+return result;
+CSHARP
 }
 
 apply_array_field() {
-  local PATH="$1" FIELD="$2" ADJUST="$3"
-  # FIELD = "ValueDefinitions[ValueName=Damage].DefaultValue"
+  local ASSET_PATH="$1" FIELD="$2" ADJUST="$3"
+  # FIELD = "ValueDefinitions[ValueName=Attack].DefaultValue"
   local ARR=$(echo "$FIELD" | sed -E 's/\[.*//')
   local QUERY_KEY=$(echo "$FIELD" | sed -E 's/.*\[([A-Za-z_]+)=.*/\1/')
   local QUERY_VAL=$(echo "$FIELD" | sed -E 's/.*=([^]]+)].*/\1/')
   local SUB=$(echo "$FIELD" | sed -E 's/.*\.//')
-  unity-cli exec "
-    var asset = AssetDatabase.LoadAssetAtPath<ScriptableObject>(\"$PATH\");
-    if (asset == null) return \"NOT_FOUND\";
-    var so = new SerializedObject(asset);
-    var arr = so.FindProperty(\"$ARR\");
-    if (arr == null || !arr.isArray) return \"NO_ARRAY\";
-    for (int i = 0; i < arr.arraySize; i++) {
-      var e = arr.GetArrayElementAtIndex(i);
-      var name = e.FindPropertyRelative(\"$QUERY_KEY\");
-      if (name != null && name.stringValue == \"$QUERY_VAL\") {
-        var v = e.FindPropertyRelative(\"$SUB\");
-        if (v == null) return \"NO_SUB\";
-        float old = v.floatValue;
-        v.floatValue = old * (1f + ($ADJUST)f);
-        so.ApplyModifiedProperties();
-        EditorUtility.SetDirty(asset);
-        AssetDatabase.SaveAssets();
-        return old.ToString(\"F3\") + \"->\" + v.floatValue.ToString(\"F3\");
-      }
+  # IMPORTANT: same heredoc-via-stdin rule as apply_scalar_field above.
+  unity-cli exec --usings UnityEditor,UnityEngine <<CSHARP
+float adjust = ${ADJUST}f;
+var asset = AssetDatabase.LoadAssetAtPath<ScriptableObject>("$ASSET_PATH");
+if (asset == null) return "NOT_FOUND";
+var so = new SerializedObject(asset);
+var arr = so.FindProperty("$ARR");
+if (arr == null || !arr.isArray) return "NO_ARRAY";
+for (int i = 0; i < arr.arraySize; i++) {
+  var e = arr.GetArrayElementAtIndex(i);
+  var name = e.FindPropertyRelative("$QUERY_KEY");
+  if (name != null && name.stringValue == "$QUERY_VAL") {
+    var v = e.FindPropertyRelative("$SUB");
+    if (v == null) return "NO_SUB";
+    string result;
+    if (v.propertyType == SerializedPropertyType.Float) {
+      float old = v.floatValue;
+      v.floatValue = old * (1f + adjust);
+      result = old.ToString("F3") + "->" + v.floatValue.ToString("F3");
+    } else if (v.propertyType == SerializedPropertyType.Integer) {
+      int old = v.intValue;
+      v.intValue = Mathf.Max(0, Mathf.RoundToInt(old * (1f + adjust)));
+      result = old + "->" + v.intValue;
+    } else {
+      return "UNSUPPORTED_TYPE:" + v.propertyType;
     }
-    return \"NO_MATCH\";
-  " --usings UnityEditor,UnityEngine
+    so.ApplyModifiedProperties();
+    EditorUtility.SetDirty(asset);
+    AssetDatabase.SaveAssets();
+    return result;
+  }
+}
+return "NO_MATCH";
+CSHARP
 }
 ```
 
-returned 값을 사용자에게 표시 (`old->new`). `NOT_FOUND`, `NO_FIELD`, `NO_SUB`, `NO_MATCH`, `NO_ARRAY` 등의 sentinel은 사용자에게 알리고 skip.
+returned 값을 사용자에게 표시 (`old->new`). `NOT_FOUND`, `NO_FIELD`, `NO_SUB`, `NO_MATCH`, `NO_ARRAY`, `UNSUPPORTED_TYPE:<type>` 등의 sentinel은 사용자에게 알리고 skip. `UNSUPPORTED_TYPE` 가 자주 발생하면 해당 knob의 자산을 직접 열어 필드 타입을 확인하고 — 필요하면 핸들러를 위 switch에 추가.
 
 ---
 
@@ -462,6 +489,8 @@ git diff -- Assets/ | head -50
 if [ "$ANSWER" = "Rollback" ]; then
   # skill이 만진 파일 목록을 정확히
   git checkout -- "${MODIFIED_PATHS[@]}"
+  # Unity가 메모리에 수정본을 들고 있을 수 있으니 AssetDatabase 강제 재동기화
+  unity-cli editor refresh >/dev/null 2>&1 || true
   echo "롤백 완료."
 elif [ "$ANSWER" = "Selective" ]; then
   # 파일별로 keep/revert 묻기
@@ -469,6 +498,7 @@ elif [ "$ANSWER" = "Selective" ]; then
     # AskUserQuestion: "Keep $p / Revert $p"
     ...
   done
+  unity-cli editor refresh >/dev/null 2>&1 || true
 else
   echo "변경 유지. 검토 후 사용자가 commit/push 해 주세요."
 fi
@@ -580,6 +610,9 @@ MVP는 표준 JSON 유지, 주석 대신 빈 `knobs: []` 와 안내 메시지로
 - **`adjust_range` 무시**: knob에 `adjust_range`가 있는데 사용자가 +200% 같은 값을 요청하면 클램프 + 경고. 본 스킬은 `adjust_default` 만 쓰지만 향후 사용자 입력 받을 때를 위해 검증 로직 포함 권장.
 - **bal-run 매핑 무시**: bal-run.json이 있으면 `play_end_key` 등을 거기서 가져와야 컨벤션 일관. 디폴트 fallback과 다르면 진단이 빈 결과 낳음.
 - **git에 자산 미커밋**: rollback 정확성을 위해 적용 전 영향 자산이 clean이어야 함. dirty면 경고 후 사용자 결정.
+- **`unity-cli exec`에 multi-line 인자 전달**: `unity-cli exec "<여러 줄 C#>"` 형태로 인자에 박으면 무한 hang. 반드시 stdin/heredoc (`unity-cli exec --usings ... <<CSHARP ... CSHARP`) 으로 전달할 것. `unity-cli --help`의 `echo '<code>' | exec` 패턴도 가능.
+- **SerializedProperty의 타입을 가정하지 말 것**: 이 프로젝트의 `DefaultValue`처럼 YAML로 정수처럼 보여도 실제 `propertyType`이 `Integer`일 수 있다 (그러면 `floatValue` 는 0). 위 핸들러처럼 `propertyType` 으로 분기하고, 미지원 타입은 `UNSUPPORTED_TYPE` sentinel 로 명시 abort.
+- **롤백 후 Unity 메모리 잔여**: `git checkout`만 하면 디스크는 원복되지만 Unity Editor가 메모리에 수정본을 들고 있어 다음 SaveAssets 호출 시 다시 덮어쓸 수 있다. 롤백 직후 `unity-cli editor refresh` 로 AssetDatabase 강제 재동기화 권장.
 
 ## 참조 자료
 
