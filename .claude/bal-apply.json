@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "diagnostics": {
+    "killer_concentration_threshold": 0.6,
+    "duration_stddev_ratio_max": 0.1,
+    "level_cap_floor": 5,
+    "min_dps": 0.25,
+    "burst_damage_multiplier": 3.0,
+    "damage_variance_max": 0.5,
+    "min_runs_for_analysis": 3
+  },
+  "knobs": [
+    {
+      "id": "enemy_damage",
+      "label": "Enemy damage tuning",
+      "triggers": ["killer_concentration", "burst_damage_at_death"],
+      "asset_glob": "Assets/RGame/RoguelikeKit/ScriptableObjects/DataSO/Enemy/**/*.asset",
+      "asset_match": {
+        "type": "value_config_named",
+        "name_mode": "filename",
+        "name_match_log_key": "episode.last_hit_attacker"
+      },
+      "field_path": "ValueDefinitions[ValueName=Damage].DefaultValue",
+      "adjust_default": -0.15,
+      "adjust_range": [-0.5, 0.5]
+    },
+    {
+      "id": "enemy_hp",
+      "label": "Enemy HP tuning",
+      "triggers": ["low_kill_rate"],
+      "asset_glob": "Assets/RGame/RoguelikeKit/ScriptableObjects/DataSO/Enemy/**/*.asset",
+      "asset_match": {
+        "type": "value_config_named",
+        "name_mode": "filename"
+      },
+      "field_path": "ValueDefinitions[ValueName=HP].DefaultValue",
+      "adjust_default": -0.1,
+      "adjust_range": [-0.5, 0.5]
+    },
+    {
+      "id": "spawn_rate",
+      "label": "Spawn base rate",
+      "triggers": ["spawn_cliff", "structural_duration_cutoff"],
+      "asset_glob": "Assets/RGame/RoguelikeKit/ScriptableObjects/DataSO/Level/Stages/**/*.asset",
+      "field_path": "BaseRatePerSecond",
+      "adjust_default": -0.2,
+      "adjust_range": [-0.5, 0.5]
+    },
+    {
+      "id": "spawn_intensity_curve",
+      "label": "Spawn intensity curve (manual)",
+      "triggers": ["spawn_cliff", "structural_duration_cutoff"],
+      "asset_glob": "Assets/RGame/RoguelikeKit/ScriptableObjects/DataSO/Level/Stages/**/*.asset",
+      "field_path": "IntensityCurve",
+      "action": "open_in_unity",
+      "note": "AnimationCurve는 Unity Editor에서 직접 시각 편집 권장. 자동 적용 안 함."
+    },
+    {
+      "id": "player_max_hp",
+      "label": "Player max HP",
+      "triggers": ["high_damage_taken_variance", "rapid_death"],
+      "asset_glob": "Assets/RGame/RoguelikeKit/ScriptableObjects/DataSO/Player/**/*.asset",
+      "asset_match": {
+        "type": "value_config_named"
+      },
+      "field_path": "ValueDefinitions[ValueName=HP].DefaultValue",
+      "adjust_default": 0.1,
+      "adjust_range": [-0.3, 0.5]
+    }
+  ]
+}
