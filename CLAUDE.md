@@ -71,6 +71,7 @@ Refer to the GitBook docs for full how-tos: https://roofen-game.gitbook.io/roofe
 
 - Many `.meta` files appear modified in `git status` after opening the project in Unity 6 — this is a normal Unity meta-rewrite, not a code change. Don't include them in unrelated commits.
 - `Assets/Scripts/` is the user's own scratch area (currently just `Input/GameInput.cs`); the shipped kit code is under `Assets/RGame/`.
+- **`docs/` 전체가 `.gitignore` 에 등록되어 있다**. `docs/hand-off.md` 같은 파일은 untracked가 정상 — commit에 포함시키려고 시도하지 말 것. 로컬 메모/인계 영역.
 
 ## ML-Agents 강화학습 환경
 
@@ -91,6 +92,17 @@ Refer to the GitBook docs for full how-tos: https://roofen-game.gitbook.io/roofe
 cd ml-training && source .venv/bin/activate
 mlagents-learn configs/<name>.yaml --run-id=<id> --time-scale 20
 ```
+
+### 자산 보존 규칙
+
+**`Assets/ML-Models/*.onnx` 와 `ml-training/results/` 는 삭제·수정·이동 금지.** 학습된 모델과 학습 결과는 누적 자산이며, 새 결과는 새 `run-id`로 추가만 한다. 정리/리팩토링 작업에서도 절대 건드리지 말 것.
+
+## PlayTrace 통합
+
+이 프로젝트는 게임 테스트 로그 수집과 대시보드를 위해 **PlayTrace** (별도 프로젝트, `/Users/mingyukim/Documents/GitHub/018_Study-Koomin/PlayTrace`)에 의존한다. `/bal-run`, `/bal-apply`, `/bal-converge` 등 모든 밸런싱 skill이 `http://localhost:8000` 의 PlayTrace API를 사용.
+
+- **서버는 사용자가 직접 띄움** (uvicorn). Claude는 작업 전 `curl -s -m 3 http://localhost:8000/health` 로 health 체크만 하고, 서버 시작 시도는 하지 않는다. 죽어있으면 "서버가 응답 안 합니다 — 띄워 주세요" 한 줄로 안내.
+- **API/필드/예제/대시보드 사용법의 단일 진실 소스는 `PlayTrace/docs/MANUAL.md`**. POST/GET payload, `LogItem` `value_type` 분기, session 생성 규칙, 안티패턴 등 모두 여기서 1차 확인. skill 본문 코드 (bal-* SKILL.md)는 사용 패턴 가이드일 뿐이며, payload 형식 충돌 시 MANUAL.md가 우선.
 
 ## Working Guidelines
 
