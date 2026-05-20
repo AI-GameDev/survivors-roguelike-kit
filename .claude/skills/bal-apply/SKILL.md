@@ -381,29 +381,25 @@ declare -a MODIFIED_PATHS=()
 ```bash
 edit_one_knob() {
   local KNOB_JSON="$1"
-  local TARGET_VALUE="$2"   # asset_match.name_match_log_key 의 PlayTrace 값 (예: "Gear")
+  local TARGET_VALUE="$2"      # finding-supplied (예: killer_concentration의 "Gear"). 빈 문자열일 수 있음.
+  local LOGS_FILE="${3:-/tmp/balapply_logs.json}"  # derive_target_value가 읽을 logs
 
-  local ASSET_PATH=$(python3 <<EOF
-import json, glob, os
-k = json.loads('''$KNOB_JSON''')
-target = "$TARGET_VALUE" or None
-candidates = glob.glob(k['asset_glob'], recursive=True)
-# .meta 제외
-candidates = [c for c in candidates if not c.endswith('.meta')]
-if target and k.get('asset_match', {}).get('name_mode') == 'filename':
-    # 파일명 stem이 target과 일치하는 것
-    chosen = next((c for c in candidates if os.path.splitext(os.path.basename(c))[0].lower() == target.lower()), None)
-elif len(candidates) == 1:
-    chosen = candidates[0]
-else:
-    chosen = None  # AskUserQuestion으로 처리
-print(chosen or '')
-EOF
-  )
+  # (1) Derived target: knob.asset_match.name_match_window 가 있으면 logs에서 target 추출.
+  #     (예: spawn_rate → 사망 직전 5초 동안 가장 자주 나온 event.enemy_spawn.set_key = "Ghost")
+  #     finding-supplied TARGET_VALUE 가 있으면 그대로 둠 (derived가 비어 있을 때만 사용).
+  local DERIVED_TARGET
+  DERIVED_TARGET=$(derive_target_value "$KNOB_JSON" "$LOGS_FILE")
+  if [ -n "$DERIVED_TARGET" ]; then
+    TARGET_VALUE="$DERIVED_TARGET"
+  fi
 
-  if [ -z "$ASSET_PATH" ]; then
+  # (2) Resolve asset paths (한 줄에 하나씩, 0개 ~ N개)
+  local ASSET_PATHS
+  ASSET_PATHS=$(resolve_asset_paths "$KNOB_JSON" "$TARGET_VALUE")
+
+  if [ -z "$ASSET_PATHS" ]; then
     if [ "$AUTO" = "1" ]; then
-      # 무인 모드: 자산 단정 불가능한 knob은 조용히 skip (전체 abort 아님).
+      # 무인 모드: 자산 단정 불가 → 조용히 skip (전체 abort 아님).
       # --dry-run --auto 라면 PLAN에 UNRESOLVED 표시.
       if [ "$DRY_RUN" = "1" ]; then
         local KID=$(echo "$KNOB_JSON" | jq -r .id)
@@ -416,41 +412,134 @@ EOF
     return 1
   fi
 
-  echo "Target asset: $ASSET_PATH"
+  echo "Target asset(s): $(echo "$ASSET_PATHS" | wc -l | tr -d ' ') 개"
 
-  # action 분기
+  # (3) action 분기 — knob 단위 (asset마다가 아니라)
   local ACTION=$(echo "$KNOB_JSON" | python3 -c "import json,sys;print(json.load(sys.stdin).get('action','default'))")
   if [ "$ACTION" = "open_in_unity" ]; then
-    if [ "$AUTO" = "1" ]; then
-      # 무인 모드: 수동 편집 knob skip.
-      return 0
-    fi
-    echo "수동 편집 필요 — $ASSET_PATH 를 Unity Editor에서 열어 ${KNOB_JSON.field_path} 을 조정해 주세요."
+    if [ "$AUTO" = "1" ]; then return 0; fi
+    while IFS= read -r ASSET_PATH; do
+      echo "수동 편집 필요 — $ASSET_PATH 를 Unity Editor에서 열어 조정해 주세요."
+    done <<< "$ASSET_PATHS"
     return 0
   fi
 
-  # 자동 편집
   local FIELD=$(echo "$KNOB_JSON" | jq -r .field_path)
   local ADJUST=$(echo "$KNOB_JSON" | jq -r .adjust_default)
   local KID=$(echo "$KNOB_JSON" | jq -r .id)
 
-  # --dry-run --auto: 실편집 안 함. 현재 값 읽어서 PLAN: 한 줄 emit하고 return.
-  if [ "$AUTO" = "1" ] && [ "$DRY_RUN" = "1" ]; then
-    local FROM TO
-    read FROM TO <<< "$(probe_field_value "$ASSET_PATH" "$FIELD" "$ADJUST")"
-    echo "PLAN:${KID}|${ASSET_PATH}|${FIELD}|${FROM}|${TO}"
-    return 0
-  fi
+  # (4) 각 asset에 대해 apply (또는 dry-run이면 PLAN: 한 줄)
+  while IFS= read -r ASSET_PATH; do
+    [ -z "$ASSET_PATH" ] && continue
 
-  # field_path 두 패턴 처리
-  if [[ "$FIELD" == *"["* ]]; then
-    # 배열 named entry: "ValueDefinitions[ValueName=Damage].DefaultValue"
-    apply_array_field "$ASSET_PATH" "$FIELD" "$ADJUST"
-  else
-    apply_scalar_field "$ASSET_PATH" "$FIELD" "$ADJUST"
-  fi
-  # 적용 성공 시 MODIFIED_PATHS 누적 (Keep/Rollback 단계에서 사용)
-  MODIFIED_PATHS+=("$ASSET_PATH")
+    if [ "$AUTO" = "1" ] && [ "$DRY_RUN" = "1" ]; then
+      local FROM TO
+      read FROM TO <<< "$(probe_field_value "$ASSET_PATH" "$FIELD" "$ADJUST")"
+      echo "PLAN:${KID}|${ASSET_PATH}|${FIELD}|${FROM}|${TO}"
+      continue
+    fi
+
+    # 실편집
+    if [[ "$FIELD" == *"["* ]]; then
+      apply_array_field "$ASSET_PATH" "$FIELD" "$ADJUST"
+    else
+      apply_scalar_field "$ASSET_PATH" "$FIELD" "$ADJUST"
+    fi
+    MODIFIED_PATHS+=("$ASSET_PATH")
+  done <<< "$ASSET_PATHS"
+}
+
+# ---------- 헬퍼: derived target (logs window 기반) ----------
+#
+# asset_match.name_match_window 가 있는 knob에 한해, PlayTrace logs 에서 target string을 계산.
+# 없거나 데이터 부족이면 빈 문자열 반환 (caller가 finding.target_value로 폴백).
+derive_target_value() {
+  local KNOB_JSON="$1"
+  local LOGS_FILE="$2"
+  [ -f "$LOGS_FILE" ] || { echo ""; return 0; }
+  KNOB_JSON="$KNOB_JSON" LOGS_FILE="$LOGS_FILE" python3 <<'PYEOF'
+import os, json, sys, collections
+knob = json.loads(os.environ['KNOB_JSON'])
+am = knob.get('asset_match', {})
+win = am.get('name_match_window')
+if not win: sys.exit(0)
+key_to_agg = am.get('name_match_log_key')
+anchor_key = win.get('anchor')
+if not key_to_agg or not anchor_key: sys.exit(0)
+before_ms = win.get('before_sec', 5) * 1000
+min_events = win.get('min_events', 1)
+agg = win.get('agg', 'mode')  # MVP: mode only
+
+try:
+    data = json.load(open(os.environ['LOGS_FILE']))
+except Exception:
+    sys.exit(0)
+items = data.get('items', [])
+
+# anchor (e.g. episode.cause) 타임스탬프 per play
+deaths = {l['play_no']: l['client_time']
+          for l in items if l.get('key') == anchor_key and l.get('play_no') is not None}
+if not deaths: sys.exit(0)
+
+# 윈도우 안의 agg-key 값 수집
+window_values = []
+for l in items:
+    if l.get('key') != key_to_agg: continue
+    pn = l.get('play_no')
+    if pn not in deaths: continue
+    ts = l.get('client_time')
+    if ts is None: continue
+    if deaths[pn] - before_ms <= ts <= deaths[pn]:
+        v = l.get('value_text') if l.get('value_type') == 'text' else l.get('value_number')
+        if v is not None:
+            window_values.append(v)
+
+if len(window_values) < min_events: sys.exit(0)
+
+if agg == 'mode':
+    top = collections.Counter(window_values).most_common(1)[0][0]
+    print(str(top))
+# 그 외 agg는 MVP 미지원 — sys.exit(0)
+PYEOF
+}
+
+# ---------- 헬퍼: asset 경로 단정 (단일 또는 변종 다중) ----------
+#
+# TARGET_VALUE가 비면 단일-glob 폴백 (candidate 1개일 때만 매칭).
+# TARGET_VALUE가 있으면 name_mode 에 따라:
+#   - filename: stem 정확 일치 (1개)
+#   - filename_prefix: stem == target 또는 stem startswith "target " (변종 N개)
+resolve_asset_paths() {
+  local KNOB_JSON="$1"
+  local TARGET_VALUE="$2"
+  KNOB_JSON="$KNOB_JSON" TARGET_VALUE="$TARGET_VALUE" python3 <<'PYEOF'
+import os, json, glob
+knob = json.loads(os.environ['KNOB_JSON'])
+target = os.environ.get('TARGET_VALUE', '').strip() or None
+candidates = [c for c in glob.glob(knob['asset_glob'], recursive=True) if not c.endswith('.meta')]
+am = knob.get('asset_match', {})
+name_mode = am.get('name_mode', 'filename')
+
+matched = []
+if not target:
+    # legacy: target 없으면 candidate 1개일 때만 단정. 여러 개면 빈 결과 (UNRESOLVED).
+    if len(candidates) == 1:
+        matched = candidates
+else:
+    t = target.lower()
+    for c in candidates:
+        stem = os.path.splitext(os.path.basename(c))[0].lower()
+        if name_mode == 'filename':
+            if stem == t: matched.append(c)
+        elif name_mode == 'filename_prefix':
+            # 정확 일치 OR 변종 ("Ghost" → "Ghost 1", "Ghost 2", …)
+            # 스페이스 강제로 "GhostKnight" 같은 무관 prefix 차단
+            if stem == t or stem.startswith(t + " "): matched.append(c)
+        # 그 외 name_mode 는 MVP 미지원
+matched.sort()
+for m in matched:
+    print(m)
+PYEOF
 }
 
 apply_scalar_field() {
@@ -589,42 +678,47 @@ CSHARP
 
 caller는 `read FROM TO <<< "$(probe_field_value ...)"` 형태로 두 토큰을 받는다. sentinel(`NOT_FOUND` 등)이면 PLAN: line에 그대로 노출 (사용자가 진단 가능).
 
-### Derived target for spawn_rate (설계 / 미구현)
+### Derived target for spawn_rate (구현됨)
 
-`enemy_damage` knob은 PlayTrace 의 `episode.last_hit_attacker` 가 직접 자산명을 알려준다 (`"Gear"` → `Gear.asset`). `spawn_rate` 는 그런 직접 키가 없어 `structural_duration_cutoff` finding이 트리거되어도 31개 SpawnSet 중 무엇을 줄여야 할지 모른다 — 현재 skip 된다.
+`enemy_damage` knob은 PlayTrace 의 `episode.last_hit_attacker` 가 직접 자산명을 알려준다 (`"Gear"` → `Gear.asset`). `spawn_rate` 같은 knob은 그런 직접 키가 없으니 — finding이 trigger 되어도 어느 SpawnSet을 손댈지 단정할 수 없다. 해결: knob의 `asset_match.name_match_window` 가 PlayTrace logs의 시간 윈도우에서 target 을 derive 하도록 한다.
 
-해결책 (구현 대기 중): `event.enemy_spawn.set_key` (text) 와 `event.enemy_spawn.actual_rate` (number) 를 활용해 **사망 직전 K초에서 가장 자주 활성이었던 SpawnSet** 을 derived target 으로 뽑는다.
-
-```python
-# 의사 코드 — 향후 'derived' asset_match 타입 구현 시 참고
-K = 5  # seconds before death
-derived_targets = []
-for play_no, play_logs in by_play.items():
-    death_ts = max(l['timestamp'] for l in play_logs if l['key'] == 'episode.cause')
-    window = [l for l in play_logs
-              if l['key'] == 'event.enemy_spawn.set_key'
-              and death_ts - K*1000 <= l['timestamp'] <= death_ts]
-    if window:
-        top = collections.Counter(l['value_text'] for l in window).most_common(1)[0][0]
-        derived_targets.append(top)
-# 모든 play 에서 일관되게 동일 set_key가 나오면 신뢰도 높음 → target
-chosen = collections.Counter(derived_targets).most_common(1)[0][0] if derived_targets else None
-```
-
-Config 측 schema 변경 (제안):
+**Config 스키마** (예: `spawn_rate` knob):
 
 ```json
 "asset_match": {
   "type": "value_config_named",
-  "name_mode": "filename",
+  "name_mode": "filename_prefix",
   "name_match_log_key": "event.enemy_spawn.set_key",
-  "name_match_window": {"anchor": "episode.cause", "before_sec": 5, "agg": "mode"}
+  "name_match_window": {
+    "anchor": "episode.cause",
+    "before_sec": 5,
+    "agg": "mode",
+    "min_events": 5
+  }
 }
 ```
 
-구현 작업: ① `name_match_window` 인식 → ② 진단 페이즈에서 derived_target 계산 → ③ `edit_one_knob` 의 `TARGET_VALUE` 로 주입.
+- `anchor`: 기준 시각 key (보통 사망 시점 = `episode.cause`)
+- `before_sec`: anchor 이전 몇 초 윈도우
+- `agg`: `mode` 만 MVP 지원 (가장 자주 나온 값)
+- `min_events`: 윈도우 합산이 이보다 적으면 UNRESOLVED (데이터 부족)
+- `name_mode: "filename_prefix"`: derive된 target 으로 변종까지 매칭 (`Ghost` → `Ghost.asset` + `Ghost 1~6.asset` 7개)
 
-스킬 한 줄 평: spawn 시계열 데이터는 이미 PlayTrace 에 들어와 있고, 부족한 건 위 추출 로직과 schema 합의뿐.
+**런타임 흐름** (`edit_one_knob` 내부):
+1. `derive_target_value(knob, logs_file)` → target 문자열 또는 빈 값
+2. derived가 비면 finding.target_value 사용 (기존 `enemy_damage` 경로 호환)
+3. `resolve_asset_paths(knob, target)` → 0~N개 자산 경로
+4. 각 자산에 `apply_*_field` 호출 (또는 `--dry-run --auto`이면 `PLAN:` 한 줄씩 emit)
+
+**검증** (session `20260520_001`, 3 plays):
+- 사망 직전 5초 spawn 90개 중 `Ghost` 70% → derived target = `"Ghost"`
+- `filename_prefix` 매칭으로 `Ghost.asset` + `Ghost 1~6.asset` 7개 모두 `PLAN:` 라인 emit
+- `Gear.asset` 같은 기존 `name_mode: filename` knob은 영향 없음 (회귀 0)
+
+**알려진 제약**:
+- `agg`: `mode` 한 가지만 (`mean`/`max`/`first` 추후)
+- 변종 7개에 균등 adjust 적용 — 시간대별로 한 변종만 active해도 비활성 변종까지 디스크 변경 (rollback 가능). 정밀하게 active 변종만 단정하려면 SpawnSet 활성 윈도우 분석이 추가 필요 (별건).
+- `filename_prefix` 매칭에 `" "` (스페이스) 강제로 `"GhostKnight 1"` 같은 무관 prefix 차단.
 
 ---
 
@@ -769,7 +863,18 @@ MVP는 표준 JSON 유지, 주석 대신 빈 `knobs: []` 와 안내 메시지로
     {
       "id": "spawn_rate",
       "triggers": ["spawn_cliff", "structural_duration_cutoff"],
-      "asset_glob": "Assets/RGame/RoguelikeKit/ScriptableObjects/DataSO/Level/Stages/**/*.asset",
+      "asset_glob": "Assets/RGame/RoguelikeKit/ScriptableObjects/DataSO/Level/Stages/StageSet/**/*.asset",
+      "asset_match": {
+        "type": "value_config_named",
+        "name_mode": "filename_prefix",
+        "name_match_log_key": "event.enemy_spawn.set_key",
+        "name_match_window": {
+          "anchor": "episode.cause",
+          "before_sec": 5,
+          "agg": "mode",
+          "min_events": 5
+        }
+      },
       "field_path": "BaseRatePerSecond",
       "adjust_default": -0.20
     }

@@ -42,6 +42,17 @@
       "label": "Spawn base rate",
       "triggers": ["spawn_cliff", "structural_duration_cutoff"],
       "asset_glob": "Assets/RGame/RoguelikeKit/ScriptableObjects/DataSO/Level/Stages/StageSet/**/*.asset",
+      "asset_match": {
+        "type": "value_config_named",
+        "name_mode": "filename_prefix",
+        "name_match_log_key": "event.enemy_spawn.set_key",
+        "name_match_window": {
+          "anchor": "episode.cause",
+          "before_sec": 5,
+          "agg": "mode",
+          "min_events": 5
+        }
+      },
       "field_path": "BaseRatePerSecond",
       "adjust_default": -0.2,
       "adjust_range": [-0.5, 0.5]
