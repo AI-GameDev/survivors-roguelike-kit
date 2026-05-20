@@ -9,6 +9,24 @@
     "EXP": "episode.final_exp",
     "Dist": "episode.nearest_enemy_distance"
   },
+  "display_labels": {
+    "metrics": {
+      "Dur":      { "ko": "평균 생존시간(초)", "desc": "한 판이 끝날 때까지 걸린 시간의 평균" },
+      "Lvl":      { "ko": "평균 최종 레벨",   "desc": "사망 시점의 캐릭터 레벨 평균" },
+      "Kills":    { "ko": "평균 처치 수",     "desc": "한 판 동안 잡은 적의 수 평균" },
+      "DmgTaken": { "ko": "평균 받은 피해",   "desc": "한 판 동안 누적 피해량 평균" },
+      "EXP":      { "ko": "평균 최종 경험치", "desc": "사망 시점의 누적 경험치 평균" },
+      "Dist":     { "ko": "평균 적과의 거리", "desc": "사망 시점에 가장 가까운 적과의 거리 평균" }
+    },
+    "knobs": {
+      "enemy_damage":          { "ko": "적 공격력",        "desc": "Enemy SO의 Attack 스탯 — 적이 한 번 때릴 때 입히는 데미지" },
+      "enemy_hp":              { "ko": "적 체력",          "desc": "Enemy SO의 HP 스탯 — 적의 최대 체력" },
+      "spawn_rate":            { "ko": "스폰 빈도",        "desc": "SpawnSet의 초당 적 등장 횟수 (BaseRatePerSecond)" },
+      "spawn_intensity_curve": { "ko": "스폰 강도 곡선",   "desc": "시간에 따른 스폰 강도 곡선 (수동 편집 대상)" },
+      "level_up_xp_increment": { "ko": "레벨업 XP 증가량", "desc": "레벨이 오를 때마다 필요한 추가 경험치 — 작으면 레벨업이 빨라짐" },
+      "player_max_hp":         { "ko": "플레이어 체력",    "desc": "PlayerStat의 HP 기본값 — 플레이어 최대 체력" }
+    }
+  },
   "max_iter": 5,
   "max_wall_sec": 1800,
   "diverge_window": 2,
