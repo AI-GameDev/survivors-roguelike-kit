@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "default_kpi": "Dur 180~240 AND Lvl>=5",
+  "metric_aliases": {
+    "Dur": "episode.duration_sec",
+    "Lvl": "episode.final_level",
+    "Kills": "episode.total_kills",
+    "DmgTaken": "episode.total_damage_taken",
+    "EXP": "episode.final_exp",
+    "Dist": "episode.nearest_enemy_distance"
+  },
+  "max_iter": 5,
+  "max_wall_sec": 1800,
+  "diverge_window": 2,
+  "default_N": 5,
+  "default_per_play_timeout": "10m"
+}
