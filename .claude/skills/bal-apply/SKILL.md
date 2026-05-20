@@ -796,6 +796,7 @@ MVP는 표준 JSON 유지, 주석 대신 빈 `knobs: []` 와 안내 메시지로
 
 ## 참조 자료
 
+- **`PlayTrace/docs/MANUAL.md`** — PlayTrace API/필드/예제의 **단일 진실 소스**. 이 스킬이 PlayTrace에서 logs를 fetch할 때 (`/api/logs/search`) 응답 형식·`value_type` 분기 등은 여기서 1차 확인. (경로: `/Users/mingyukim/Documents/GitHub/018_Study-Koomin/PlayTrace/docs/MANUAL.md`)
 - `.claude/skills/bal-run/SKILL.md` — config 캐시 패턴, AskUserQuestion 흐름, unity-cli 사용법
 - `.claude/bal-run.json` — `play_end_key`, `summary_columns` (있으면 활용)
 - `.claude/bal-apply.json` — 이 스킬의 knob 매핑 (없으면 cold start)

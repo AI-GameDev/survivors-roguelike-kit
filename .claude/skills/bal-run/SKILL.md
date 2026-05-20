@@ -489,7 +489,7 @@ fi
 
 ## 참조 자료
 
+- **`PlayTrace/docs/MANUAL.md`** — PlayTrace API/필드/예제/대시보드 사용법의 **단일 진실 소스**. POST/GET payload, LogItem `value_type` 분기, session 생성 규칙, 안티패턴 등 모두 여기서 1차 확인. (이 프로젝트의 PlayTrace 경로: `/Users/mingyukim/Documents/GitHub/018_Study-Koomin/PlayTrace/docs/MANUAL.md`)
 - `.claude/skills/bal-init/SKILL.md` — 선행 셋업 (inference wiring + PlayTrace 통합). 이게 안 되어 있으면 bal-run은 안 돌아간다.
-- `.claude/skills/bal-init/references/playtrace-api.md` — PlayTrace API 컨닝페이퍼.
-- `<project>/docs/MANUAL.md` (있을 때) — PlayTrace 원본 매뉴얼.
+- `.claude/skills/bal-init/references/playtrace-api.md` — PlayTrace API 컨닝페이퍼 (MANUAL.md 요약본 — 충돌 시 MANUAL.md 우선).
 - `<project>/.claude/bal-run.json` — 이 프로젝트의 키 매핑. 첫 실행 시 인터뷰로 만들어지고 이후 자동 사용.
