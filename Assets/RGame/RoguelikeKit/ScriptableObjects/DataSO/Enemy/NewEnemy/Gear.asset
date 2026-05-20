@@ -23,7 +23,7 @@ MonoBehaviour:
     HasMaxValue: 0
     MaxValue: 0
   - ValueName: Attack
-    DefaultValue: 5
+    DefaultValue: 3
     HasMaxValue: 0
     MaxValue: 0
   - ValueName: AttackCD

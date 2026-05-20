@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Description: 
   baseExperience: 100
-  experienceIncrement: 50
+  experienceIncrement: 32
