@@ -1,0 +1,99 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>bal-converge report — 2026-05-23T00:36:41 (USER_ABORT_PRE_CYCLE)</title><style>
+:root {
+  --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b;
+  --border: #e2e8f0; --accent: #2563eb; --success: #10b981;
+  --warning: #f59e0b; --danger: #ef4444;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14px; line-height: 1.55; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 32px 24px 80px; }
+header.top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+header.top h1 { font-size: 18px; margin: 0; font-weight: 600; }
+header.top .meta { font-family: var(--mono); color: var(--muted); font-size: 12px; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: 0.02em; }
+.badge.pass { background: #dcfce7; color: #065f46; }
+.badge.fail { background: #fee2e2; color: #991b1b; }
+.badge.warn { background: #fef3c7; color: #92400e; }
+section { margin: 32px 0; }
+h2 { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 0 0 12px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; }
+.summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.summary-grid .card .k { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.summary-grid .card .v { font-size: 22px; font-weight: 600; margin-top: 4px; font-family: var(--mono); }
+.summary-grid .card .v.green { color: var(--success); }
+.summary-grid .card .v.red { color: var(--danger); }
+.summary-grid .card .v.amber { color: var(--warning); }
+.summary-grid .card .sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.kpi-row { display: grid; grid-template-columns: 160px 1fr 120px; gap: 16px; align-items: center; padding: 12px 0; border-top: 1px solid var(--border); }
+.kpi-row:first-of-type { border-top: 0; }
+.kpi-row .name { font-weight: 600; }
+.kpi-row .name .desc { display: block; font-weight: 400; font-size: 11px; color: var(--muted); margin-top: 2px; }
+.kpi-row .val { text-align: right; font-family: var(--mono); }
+.kpi-row .val .num { font-size: 16px; font-weight: 600; }
+.kpi-row .val .pass-tag { font-size: 11px; }
+svg.gauge { display: block; width: 100%; height: 50px; }
+svg.gauge .track { fill: #f1f5f9; }
+svg.gauge .target { fill: #d1fae5; }
+svg.gauge .marker { fill: var(--text); }
+svg.gauge .label-axis { font-family: var(--mono); font-size: 9px; fill: var(--muted); }
+.chart-card { padding: 20px 24px 8px; }
+svg.trend { display: block; width: 100%; height: 280px; }
+svg.trend .axis line { stroke: var(--border); stroke-width: 1; }
+svg.trend .axis text { font-family: var(--mono); font-size: 10px; fill: var(--muted); }
+svg.trend .gridline { stroke: #f1f5f9; stroke-width: 1; }
+svg.trend .line-dist { stroke: var(--accent); stroke-width: 2; fill: none; }
+svg.trend .dot { fill: var(--accent); cursor: default; }
+svg.trend .dot:hover { fill: var(--text); }
+svg.trend .area-dist { fill: var(--accent); opacity: 0.08; }
+svg.trend .label-pt { font-family: var(--mono); font-size: 10px; fill: var(--muted); text-anchor: middle; }
+svg.trend .threshold { stroke: var(--success); stroke-dasharray: 4 3; stroke-width: 1; }
+svg.trend .threshold-label { font-family: var(--mono); font-size: 9px; fill: var(--success); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+table th, table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+table th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); font-weight: 600; background: #f8fafc; }
+table td.num, table th.num { text-align: right; font-family: var(--mono); }
+table tr:hover td { background: #f8fafc; }
+.pill { display: inline-block; padding: 1px 7px; border-radius: 3px; font-size: 11px; font-family: var(--mono); }
+.pill.pass { background: #dcfce7; color: #065f46; }
+.pill.fail { background: #fee2e2; color: #991b1b; }
+.knob-block { margin: 12px 0; padding: 12px 16px; background: #f8fafc; border-left: 3px solid var(--accent); border-radius: 4px; }
+.knob-block .head { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.knob-block .change { font-family: var(--mono); font-size: 13px; }
+.knob-block .change .knob-name { font-weight: 600; color: var(--text); }
+.knob-block .change .arrow { color: var(--muted); }
+.knob-block .change .from { color: var(--danger); }
+.knob-block .change .to { color: var(--success); }
+.knob-block .why { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.nbox { padding: 18px 22px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border); }
+.nbox h3 { margin: 0 0 10px; font-size: 14px; font-weight: 600; }
+.nbox p, .nbox li { font-size: 13px; line-height: 1.65; }
+.nbox ul { margin: 6px 0 10px; padding-left: 20px; }
+.src-tag { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; padding: 2px 7px; border-radius: 3px; text-transform: uppercase; margin-bottom: 10px; }
+.src-tag.chat { background: #ede9fe; color: #5b21b6; }
+.src-tag.data { background: #dbeafe; color: #1e40af; }
+.src-tag.mix  { background: #fef3c7; color: #92400e; }
+.nbox.chat { background: #faf5ff; }
+.nbox.data { background: #eff6ff; }
+.nbox.mix  { background: #fffbeb; }
+.impact-list { margin: 8px 0 4px; }
+.impact-row { display: grid; grid-template-columns: 24px 1fr 90px 60px; gap: 10px; align-items: center; padding: 6px 0; font-size: 12px; }
+.impact-row .rank { font-family: var(--mono); color: var(--muted); text-align: center; }
+.impact-row .name { font-family: var(--mono); }
+.impact-row .bar-wrap { background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; }
+.impact-row .bar { background: var(--accent); height: 100%; }
+.impact-row .val { font-family: var(--mono); text-align: right; font-size: 11px; color: var(--muted); }
+.delta-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 10px 0; }
+.delta-card { background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; }
+.delta-card .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.delta-card .ba { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; font-family: var(--mono); }
+.delta-card .before { color: var(--danger); font-size: 13px; }
+.delta-card .arrow { color: var(--muted); }
+.delta-card .after { color: var(--success); font-size: 18px; font-weight: 600; }
+.delta-card .delta-pct { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.empty { padding: 20px; text-align: center; color: var(--muted); font-size: 12px; font-style: italic; }
+footer.links { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+footer.links a { color: var(--accent); text-decoration: none; }
+footer.links a:hover { text-decoration: underline; }
+footer.links code { font-family: var(--mono); background: #f1f5f9; padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+</style></head><body><div class="wrap"><header class="top"><div><h1>bal-converge — survivors-roguelike-kit · SurvivorFighterAgent_v17_best</h1><div class="meta">2026-05-23T00:36:41 · branch <code>balance/v17-tuning</code> · KPI <code>Dur 180~270 AND cause=death</code></div></div><div><span class="badge warn">USER_ABORT_PRE_CYCLE · iter 0</span></div></header><section><h2>요약</h2><div class="summary-grid"><div class="card"><div class="k">결과</div><div class="v amber">USER_ABORT_PRE_CYCLE</div><div class="sub"></div></div><div class="card"><div class="k">사이클</div><div class="v">0 / 3</div><div class="sub">max_iter=3</div></div><div class="card"><div class="k">소요 시간</div><div class="v">7m</div><div class="sub">max_wall=30m</div></div><div class="card"><div class="k">변경 knob</div><div class="v">0</div><div class="sub">자산 0개 수정</div></div></div></section><section><h2>KPI 현황 (최종 사이클)</h2><div class="card"><div class="kpi-row"><div class="name">평균 생존시간(초)<span class="desc">한 판이 끝날 때까지 걸린 시간의 평균</span></div><div><svg class="gauge" viewBox="0 0 400 50" preserveAspectRatio="none"><rect class="track" x="20" y="22" width="360" height="14" rx="3"/><rect class="target" x="200.0" y="22" width="90.0" height="14" rx="3"/><line class="marker" x1="104.0" y1="16" x2="104.0" y2="42" stroke="currentColor" stroke-width="2"/><circle class="marker" cx="104.0" cy="29" r="4"/><text class="label-axis" x="20.0" y="48" text-anchor="start">0</text><text class="label-axis" x="200.0" y="48" text-anchor="middle">180.0</text><text class="label-axis" x="290.0" y="48" text-anchor="middle">270.0</text><text class="label-axis" x="380.0" y="48" text-anchor="end">360.0</text></svg></div><div class="val"><div class="num">83.95</div><div class="pass-tag"><span class="pill fail">FAIL</span></div></div></div><div class="kpi-row"><div class="name">cause<span class="desc">cause (target ==0)</span></div><div><svg class="gauge" viewBox="0 0 400 50" preserveAspectRatio="none"><rect class="track" x="20" y="22" width="360" height="14" rx="3"/><rect class="target" x="20.0" y="22" width="36.0" height="14" rx="3"/><line class="marker" x1="20.0" y1="16" x2="20.0" y2="42" stroke="currentColor" stroke-width="2"/><circle class="marker" cx="20.0" cy="29" r="4"/><text class="label-axis" x="20.0" y="48" text-anchor="start">0</text><text class="label-axis" x="20.0" y="48" text-anchor="start">0</text><text class="label-axis" x="380.0" y="48" text-anchor="end">1</text></svg></div><div class="val"><div class="num">0.00</div><div class="pass-tag"><span class="pill pass">PASS</span></div></div></div></div></section><section><h2>사이클 상세</h2><div class="card" style="padding:0;overflow:hidden;"><table><thead><tr><th>iter</th><th>session</th><th class="num">평균 생존시간(초)</th><th class="num">평균 최종 레벨</th><th class="num">평균 처치 수</th><th class="num">평균 받은 피해</th><th class="num">평균 최종 경험치</th><th class="num">평균 적과의 거리</th><th class="num">distance</th><th class="num">knobs</th><th>결과</th></tr></thead><tbody><tr><td>0 (baseline)</td><td><code>20260523_001</code></td><td class="num">83.95</td><td class="num">6.00</td><td class="num">50.00</td><td class="num">100.4</td><td class="num">57.20</td><td class="num">0.93</td><td class="num">1.07</td><td class="num">—</td><td><span class="pill fail">FAIL</span></td></tr></tbody></table></div></section><section><h2>해석 / 메모</h2><div class="nbox chat"><span class="src-tag chat">💬 이번 세션 대화 요약</span><h3>왜 이 KPI 였나</h3><p>사용자가 평균 생존시간 3분~4분30초 (180~270s) 를 목표로 설정. cause=death 조건은 timer cap outlier (직전 _026 의 442s 1건처럼) 를 자동 제외해 σ 안정성을 동시에 강제하기 위함.</p><h3>사전 가설</h3><ul><li>spawn_burst_count 미세조정 (Count 15→18~22): 직전 pass 사이클의 입증 lever</li><li>enemy_hp 약화: kill snowball 가속화</li><li>level_up_xp_increment 감소: leveling 가속, snowball 보조</li></ul><h3>사용자가 표명한 우려</h3><ul><li>enemy_damage 정수 round-trip 흡수 (Gear Attack 같은 작은 정수 자산에 ±15% no-op)</li><li>직전 _026 σ/μ=85% 가 baseline precondition 임계 초과</li><li>Count=15 자체가 너무 약해 timer cap 1/5 발생 (학습 환경과 inference 환경 policy mismatch)</li></ul><p style="font-size:11px;color:var(--muted);margin-top:12px;">※ 이 박스는 Claude가 종료 시점에 대화 로그를 요약한 재구성입니다. 정확한 사용자 발언은 대화 원문을 참조하세요.</p></div><div class="nbox data"><span class="src-tag data">📊 데이터 기반 자동 분석</span><h3>1) 시작 상태 (baseline)</h3><p>Baseline session 20260523_001 (N=5, all death) 측정 결과 Dur=83.95 ± 9.01s (σ/μ=10.7%), Lvl=6.0, Kills=50.0, killer=Gear 80%. 직전 _024 baseline (mean=79.55, σ=6.53, Gear 60%) 과 매우 유사한 패턴. 직전 _026 의 mean=164s 는 timer cap 442s outlier 1건이 끌어올린 값이었음 — 실제 modal duration 은 ~84s 로 Ghost Count 30→15 fix 가 평균 사망시점은 거의 못 옮긴 셈. Count fix 는 60s burst cutoff 만 제거했고 그 다음 ~80s spawn wave 에서 자연사망.</p><p style="font-size:12px;margin-top:8px;"><strong>핵심 관찰:</strong> Plan Preview 결과 6개 진단 휴리스틱 중 단 1개 (killer_concentration: Gear 80%) 만 발화 → enemy_damage knob 단독 매칭. 그러나 Gear.asset Attack=3 (Integer) × -15% = 2.55 → round=3 → **no-op (3→3)**. 메모리의 enemy_damage 정수 round-trip trap 정확히 재현. KPI gap +96s 대비 가용 lever 0개 (no-op 1개) 인 상태.</p><h3>4) 진행 신호</h3><ul><li>structural_duration_cutoff: σ/μ=10.7% — 임계 10% 를 0.7%p 초과로 미발화 → spawn_burst_count 못 건드림</li><li>low_kill_rate: 0.59 kills/s ≫ 0.25 임계 → enemy_hp 발동 안 됨 (현재 kill 효율은 정상)</li><li>level_cap_low: Lvl=6.0 ≥ 5 임계 → level_up_xp_increment 발동 안 됨</li><li>burst_damage_at_death / damage_variance: 정상 범위</li><li>결국 사용자가 plan 단계에서 의도한 levers (spawn_burst_count + enemy_hp + level_up_xp_increment) 가 진단 임계에 못 닿아 모두 비활성</li></ul></div><div class="nbox mix"><span class="src-tag mix">🎯 결론 + 후속 가설 (대화 + 데이터)</span><h3>이번 사이클이 입증한 것</h3><ul><li>직전 _026 의 mean=164s 는 outlier-driven 이었음 — 실제 modal Dur 은 ~84s 로 _024 와 유사</li><li>현 진단계 세팅으로는 &#x27;KPI 가 멀어도 명시적 bottleneck 이 없으면 lever 0개&#x27; 라는 구조적 약점이 명확해짐</li><li>memory: project_ghost_burst_structural_cutoff trap 재발현 — Gear.asset Attack=3 round-trip 흡수</li></ul><h3>다음 세션 후속 가설</h3><ul><li>Option A — 진단 임계 재조정: duration_stddev_ratio_max 0.10→0.15 (현 10.7% 발동), killer_concentration_threshold 유지, level_cap_floor 5→7 (Lvl=6 도 &#x27;snowball 부족&#x27; 으로 간주). 이후 /bal-converge 재실행하면 spawn_burst_count + level_up_xp_increment 가 발동 가능.</li><li>Option B — knob-targeted 호출: --auto 대신 /bal-apply knob=spawn_burst_count session=20260523_001 같이 명시 lever 직접 지정. 진단 매칭 우회.</li><li>Option C — KPI 점진적 접근: 84s→180s 한 사이클 점프 대신 &#x27;Dur 100~150&#x27; 부터 시도해 lever 효과를 단계적으로 검증.</li><li>Option D — bal-apply config 에 &#x27;kpi_distance_high&#x27; 같은 메타-finding 신설: KPI 거리가 N 이상이면 모든 적용가능 knob 후보 노출. 진단계의 reactive 한계 해소.</li><li>Option E — enemy_damage adjust_default 를 -0.40 으로 키워 round-trip trap 탈출 (단 plan 권장과 충돌, 의식적 선택 필요).</li><li>v18 재학습은 여전히 우선순위 — 모델이 inference 환경 (Count=15) 에 맞춰지지 않은 상태가 누적되면 다음 사이클부터 policy mismatch 가 더 악화.</li></ul></div></section><footer class="links"><div><strong>관련 자료</strong></div><div>· 사이클별 raw 데이터: <code>20260523_001</code></div><div>· git diff: — (0 files)</div><div style="margin-top:12px;font-size:11px;">이 리포트는 단일 HTML 파일로 외부 의존성 0개 (CDN/JS lib 없음). 인라인 SVG + CSS만 사용. 5년 뒤에도, 오프라인에서도 그대로 열림.</div></footer></div></body></html>

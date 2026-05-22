@@ -2,12 +2,15 @@
   "schema_version": 1,
   "diagnostics": {
     "killer_concentration_threshold": 0.6,
-    "duration_stddev_ratio_max": 0.1,
-    "level_cap_floor": 5,
+    "duration_stddev_ratio_max": 0.15,
+    "level_cap_floor": 7,
     "min_dps": 0.25,
     "burst_damage_multiplier": 3.0,
     "damage_variance_max": 0.5,
-    "min_runs_for_analysis": 3
+    "min_runs_for_analysis": 3,
+    "bimodal_sigma_ratio_min": 0.4,
+    "bimodal_requires_timeout": true,
+    "overcrowd_count_min": 80
   },
   "knobs": [
     {
@@ -75,7 +78,7 @@
         }
       },
       "field_path": "Count",
-      "adjust_default": -0.5,
+      "adjust_default": -0.25,
       "adjust_range": [-0.7, 0.5],
       "note": "SpawnSet.cs: Count is the burst size for Pattern==Dense/Circle (ignored for Random). Integer field — large base values (e.g. 30) round-trip cleanly."
     },
@@ -110,6 +113,51 @@
       "field_path": "ValueDefinitions[ValueName=HP].DefaultValue",
       "adjust_default": 0.1,
       "adjust_range": [-0.3, 0.5]
+    },
+    {
+      "id": "early_spawn_rate",
+      "label": "Early-window spawn rate ease (0~90s)",
+      "triggers": ["bimodal_early_part", "overcrowded_at_death"],
+      "asset_glob": "Assets/RGame/RoguelikeKit/ScriptableObjects/DataSO/Level/Stages/StageSet/**/*.asset",
+      "asset_match": {
+        "type": "value_config_named",
+        "name_mode": "filename_list",
+        "names": ["Gear", "Gear 1"]
+      },
+      "field_path": "BaseRatePerSecond",
+      "adjust_default": -0.5,
+      "adjust_range": [-0.7, 0.0],
+      "note": "Early-window (0~90s) Random pattern SpawnSet base rate down. names 는 StartTime<90s 인 Random 자산 stem (필요 시 사용자 직접 갱신)."
+    },
+    {
+      "id": "late_spawn_burst_amplify",
+      "label": "Late-window burst Count amplify (180~270s)",
+      "triggers": ["bimodal_late_burst"],
+      "asset_glob": "Assets/RGame/RoguelikeKit/ScriptableObjects/DataSO/Level/Stages/StageSet/**/*.asset",
+      "asset_match": {
+        "type": "value_config_named",
+        "name_mode": "filename_list",
+        "names": ["Ghost 3", "Ghost 4", "Ghost 5", "Ghost 6", "BoyFairy1", "BoyFairy2"]
+      },
+      "field_path": "Count",
+      "adjust_default": 2.0,
+      "adjust_range": [0.0, 4.0],
+      "note": "Late-window (180~270s) Dense/Circle burst Count 3x. Integer 필드 — 큰 베이스 (15, 20) 라 round-trip 안정. bimodal 통과 모델에 사망 wall 형성 목적."
+    },
+    {
+      "id": "late_spawn_rate_amplify",
+      "label": "Late-window sustained rate amplify (180~360s)",
+      "triggers": ["bimodal_late_rate"],
+      "asset_glob": "Assets/RGame/RoguelikeKit/ScriptableObjects/DataSO/Level/Stages/StageSet/**/*.asset",
+      "asset_match": {
+        "type": "value_config_named",
+        "name_mode": "filename_list",
+        "names": ["ForestGuardianFairy"]
+      },
+      "field_path": "BaseRatePerSecond",
+      "adjust_default": 5.0,
+      "adjust_range": [0.0, 10.0],
+      "note": "Late-window long-sustained Random pressure 6x (0.3 → 1.8). bimodal 깨기용 지속 압력."
     }
   ]
 }

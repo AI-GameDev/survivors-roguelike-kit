@@ -15,7 +15,7 @@ disable-model-invocation: false
         ↓
 [2] config 로드 (.claude/bal-apply.json)
         ↓
-[3] 6개 진단 휴리스틱 실행 → finding 목록 (severity 포함)
+[3] 8개 진단 휴리스틱 실행 → finding 목록 (severity 포함). bimodal_survival 발화 시 sub-finding 3개 자동 동반.
         ↓
 [4] finding.triggers ↔ knob.triggers 매칭 → 추천 액션
         ↓
@@ -155,10 +155,12 @@ DEFAULTS = {
     "level_key": "episode.final_level",
     "killer_key": "episode.last_hit_attacker",
     "burst_key": "episode.recent_5s_damage_taken",
+    "active_enemy_key": "episode.active_enemy_count",
+    "timeout_cause_value": "timeout",
 }
 ```
 
-진단 규칙 6개:
+진단 규칙 8개:
 
 ```python
 import json, statistics, collections
@@ -268,6 +270,50 @@ if len(dmgs) >= 3:
             'msg': f"방어 불안정 (damage_taken σ/μ={sd/m:.2f})"
         })
 
+# 7) bimodal_survival — timeout 발생 + σ/μ 가 임계 초과 (양극단 분포)
+#    structural_duration_cutoff(σ/μ<15%)와 정반대 패턴. 둘은 상호 배타적.
+#    발화 시 sub-finding 3개를 같이 append → 각자 단일 knob 매칭 (옵션 B 분할 방식).
+TIMEOUT_VAL = DEFAULTS.get('timeout_cause_value', 'timeout')
+durations_bm = [p.get(DEFAULTS['duration_key']) for p in completed.values()]
+durations_bm = [d for d in durations_bm if isinstance(d, (int, float))]
+timeouts_bm = sum(1 for p in completed.values() if p.get(DEFAULTS['play_end_key']) == TIMEOUT_VAL)
+if len(durations_bm) >= 3:
+    mean_bm = statistics.mean(durations_bm)
+    sd_bm = statistics.stdev(durations_bm)
+    ratio_bm = sd_bm / mean_bm if mean_bm > 0 else 0
+    requires_to = dx.get('bimodal_requires_timeout', True)
+    if ratio_bm > dx.get('bimodal_sigma_ratio_min', 0.4) and \
+       (timeouts_bm >= 1 or not requires_to):
+        findings.append({
+            'id': 'bimodal_survival',
+            'severity': 'high',
+            'msg': (f"분포 bimodal (mean={mean_bm:.0f}s σ={sd_bm:.0f}s={ratio_bm*100:.0f}% "
+                    f"timeout={timeouts_bm}/{N}) — early/late 양방향 조정 필요")
+        })
+        # 옵션 B: sub-finding 3개 자동 append. 각자 단일 knob 매칭 → --auto 가 first-match
+        # 규약 그대로 동작하면서 한 사이클에 시간대별 3 knob 동시 적용 가능.
+        for sub in ('bimodal_early_part', 'bimodal_late_burst', 'bimodal_late_rate'):
+            findings.append({
+                'id': sub,
+                'severity': 'high',
+                'msg': f"[bimodal sub] {sub} — bimodal_survival 동반 발화"
+            })
+
+# 8) overcrowded_at_death — 사망 시점 활성 적 평균이 임계 초과
+#    단일 적 종류 무관, 누적 spawn 압력이 사망 원인일 때 발화.
+ACTIVE_KEY = DEFAULTS.get('active_enemy_key', 'episode.active_enemy_count')
+counts = [p.get(ACTIVE_KEY) for p in completed.values()]
+counts = [c for c in counts if isinstance(c, (int, float))]
+if len(counts) >= 3:
+    m_ac = statistics.mean(counts)
+    thr = dx.get('overcrowd_count_min', 80)
+    if m_ac > thr:
+        findings.append({
+            'id': 'overcrowded_at_death',
+            'severity': 'high',
+            'msg': f"사망 시점 활성 적 평균 {m_ac:.0f}마리 (임계 {thr}) — 누적 spawn 압력 과다"
+        })
+
 # 결과 출력
 if not findings:
     print("진단 결과: 이상 없음. 이번 표본에서 발견된 유의미 패턴이 없습니다.")
@@ -277,7 +323,7 @@ else:
         print(f"  [{f['severity']}] {f['id']}: {f['msg']}")
 ```
 
-이 6개 외에 게임-종속 진단을 추가하려면 config의 `diagnostics` 섹션에 임계값을 더 박고 스킬 본문에 if-블록을 추가하는 게 단순하지만, MVP는 위 6개로 충분.
+이 8개 외에 게임-종속 진단을 추가하려면 config의 `diagnostics` 섹션에 임계값을 더 박고 스킬 본문에 if-블록을 추가하는 게 단순하지만, 현재 8개로 일반적인 spawn 압력 / killer 집중 / bimodal / 성장 부족 패턴은 모두 커버 가능.
 
 ---
 
@@ -505,10 +551,11 @@ PYEOF
 
 # ---------- 헬퍼: asset 경로 단정 (단일 또는 변종 다중) ----------
 #
-# TARGET_VALUE가 비면 단일-glob 폴백 (candidate 1개일 때만 매칭).
-# TARGET_VALUE가 있으면 name_mode 에 따라:
-#   - filename: stem 정확 일치 (1개)
-#   - filename_prefix: stem == target 또는 stem startswith "target " (변종 N개)
+# name_mode 분기 (TARGET_VALUE 의존성 포함):
+#   - filename_list: knob.names 배열로 정확 stem 일치 (TARGET_VALUE 무관). bimodal_* / overcrowded_* 같이 derived target 없는 finding 용.
+#   - filename: TARGET_VALUE 필요. stem 정확 일치 (1개)
+#   - filename_prefix: TARGET_VALUE 필요. stem == target 또는 stem startswith "target " (변종 N개)
+#   - (그 외): TARGET_VALUE 비고 candidate 1개일 때만 폴백 매칭
 resolve_asset_paths() {
   local KNOB_JSON="$1"
   local TARGET_VALUE="$2"
@@ -521,7 +568,15 @@ am = knob.get('asset_match', {})
 name_mode = am.get('name_mode', 'filename')
 
 matched = []
-if not target:
+if name_mode == 'filename_list':
+    # target_value 불필요 — knob 의 names 배열이 곧 매칭 대상.
+    # bimodal_* / overcrowded_* 처럼 derived target 이 없는 finding 에 적합.
+    names_lower = {n.lower() for n in am.get('names', [])}
+    for c in candidates:
+        stem = os.path.splitext(os.path.basename(c))[0].lower()
+        if stem in names_lower:
+            matched.append(c)
+elif not target:
     # legacy: target 없으면 candidate 1개일 때만 단정. 여러 개면 빈 결과 (UNRESOLVED).
     if len(candidates) == 1:
         matched = candidates
@@ -898,6 +953,10 @@ MVP는 표준 JSON 유지, 주석 대신 빈 `knobs: []` 와 안내 메시지로
 - **SerializedProperty의 타입을 가정하지 말 것**: 이 프로젝트의 `DefaultValue`처럼 YAML로 정수처럼 보여도 실제 `propertyType`이 `Integer`일 수 있다 (그러면 `floatValue` 는 0). 위 핸들러처럼 `propertyType` 으로 분기하고, 미지원 타입은 `UNSUPPORTED_TYPE` sentinel 로 명시 abort.
 - **롤백 후 Unity 메모리 잔여**: `git checkout`만 하면 디스크는 원복되지만 Unity Editor가 메모리에 수정본을 들고 있어 다음 SaveAssets 호출 시 다시 덮어쓸 수 있다. 롤백 직후 `unity-cli editor refresh` 로 AssetDatabase 강제 재동기화 권장.
 - **`--auto` 모드에서 사용자 보호**: `--auto`는 dirty asset, 자산 후보 다수, cold start 등 모호한 상황을 conservatively abort/skip 한다 (위 "--auto 모드 분기 표" 참조). 무인 환경에서 잘못된 추측으로 자산을 망가뜨리지 않기 위함. caller(bal-converge 등)는 `exit code` 와 `MODIFIED:` / `PLAN:` 라인을 표준 인터페이스로 사용.
+- **`bimodal_survival` + sub-finding 동시 발화 의미**: bimodal 진단이 fire 하면 `bimodal_early_part` / `bimodal_late_burst` / `bimodal_late_rate` 3개 sub-finding 이 같은 데이터 조건으로 자동 append 된다. 각 sub-finding 은 단일 knob (각자 early/late_burst/late_rate) 만 매칭하도록 `triggers` 가 설계됐다. 즉 `--auto` 의 "first-match" 규약 그대로 동작하면서 한 사이클에 3개 시간대별 knob 이 동시 적용. config 의 knob.triggers 에 같은 sub-finding 을 중복 등록하면 의도치 않은 다중 적용 발생 — append 시 1:1 매핑 유지.
+- **`bimodal_requires_timeout` 가드**: 분산 큰 noise 케이스 (모든 plays 일찍 죽지만 σ 큼) 와 진짜 bimodal (일부 timeout, 일부 조기 사망) 구분. config 의 `bimodal_requires_timeout: true` 가 기본. false 로 풀면 timeout 0건 σ noise 에서도 발화. 양방향 증강이 부적절한 케이스에서 자동 안전망.
+- **`filename_list` mode 는 target 무관**: `name_mode: filename_list` 의 knob 은 derived target_value 가 없어도 동작 (knob 의 `names` 배열이 곧 매칭 셋). 단, names 가 실제 자산 stem 과 정확 일치해야 함 — Unity 가 자동 추가하는 `" 1"`, `" 2"` 같은 변종 suffix 도 명시 필요 (예: `["Ghost 3", "Ghost 4"]`). 자산 생성/이름 변경 시 사용자가 직접 갱신.
+- **양수 `adjust_default` 와 Integer 클램프**: late_*_amplify 같이 `adjust_default > 0` 인 knob 은 정상 동작. 단 Integer 필드는 `Mathf.Max(0, ...)` 클램프가 음수만 막아 양수 amplify 는 무영향. 베이스 값이 작은 정수 (예: Count=1) 면 `+2.0` 도 round(3)=3 으로 그대로 — round-trip 함정 (memory: enemy_damage 정수 흡수) 의 양수 버전. `late_spawn_burst_amplify` 처럼 큰 베이스 (15, 20) 만 안정.
 
 ## 참조 자료
 
