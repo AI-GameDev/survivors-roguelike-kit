@@ -18,7 +18,7 @@ MonoBehaviour:
     Weight: 100
   Pattern: 2
   BaseRatePerSecond: 12.288
-  Count: 30
+  Count: 15
   CircleRadius: 15
   StartTime: 90
   EndTime: 60
