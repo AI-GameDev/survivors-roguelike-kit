@@ -17,7 +17,7 @@ MonoBehaviour:
   - PoolKey: Ghost
     Weight: 100
   Pattern: 2
-  BaseRatePerSecond: 19.2
+  BaseRatePerSecond: 12.288
   Count: 30
   CircleRadius: 15
   StartTime: 240

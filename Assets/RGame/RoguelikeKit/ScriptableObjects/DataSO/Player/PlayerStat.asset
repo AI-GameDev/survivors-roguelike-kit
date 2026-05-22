@@ -15,7 +15,7 @@ MonoBehaviour:
   Description: 
   ValueDefinitions:
   - ValueName: HP
-    DefaultValue: 121
+    DefaultValue: 146
     HasMaxValue: 1
     MaxValue: 100
   - ValueName: Might
