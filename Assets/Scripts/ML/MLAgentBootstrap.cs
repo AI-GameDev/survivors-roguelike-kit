@@ -207,9 +207,12 @@ namespace RGame.MLAgents
 
         private void OnGameOver()
         {
-            Debug.Log("[MLBoot] OnGameOver fired. timeScale was=" + Time.timeScale);
+            // Agent가 MaxStep timeout 직전 CheckTimeoutClear에서 RaiseEvent한 케이스는 "timeout"으로 분리 기록한다.
+            // 그래야 PlayTrace의 episode.cause 가 진짜 contact death 와 timer 종료를 구분할 수 있다.
+            string cause = (_agent != null && _agent.ClearedTimeoutThisEpisode) ? "timeout" : "death";
+            Debug.Log("[MLBoot] OnGameOver fired. cause=" + cause + " timeScale was=" + Time.timeScale);
             // 에피소드 통계를 reload 시작 전에 dump.
-            if (_balanceLogger != null) _balanceLogger.FlushEpisode("death");
+            if (_balanceLogger != null) _balanceLogger.FlushEpisode(cause);
             // FixedUpdate를 즉시 멈춰 큐에 쌓인 시간-스텝 액션이 파괴된 Player를 참조하지 못하게 한다.
             Time.timeScale = 0f;
             StartCoroutine(ReloadGameScene());

@@ -111,9 +111,14 @@ namespace RGame.MLAgents
 
         public override void Initialize()
         {
-            // 5 min sim-time @ 50Hz FixedUpdate = 15000 steps. 도달 시 CLEAR_REWARD 후 종료.
-            MaxStep = 15000;
+            // ML-Agents Academy가 inference 모드에서 Time.fixedDeltaTime=1/240(240Hz)로 설정하므로
+            // 15000 step = 62.5s sim-time 으로 timeout-clear 가 너무 일찍 발화한다 (구 주석은 50Hz 가정 오류).
+            // 의도된 5분(=300s sim-time) 환경 복원: 240Hz × 75000 step ≈ 312s.
+            MaxStep = 75000;
         }
+
+        // Bootstrap이 OnGameOver listener에서 cause="timeout" vs "death" 분기에 사용.
+        public bool ClearedTimeoutThisEpisode => _clearedTimeout;
 
         public override void OnEpisodeBegin()
         {
