@@ -144,24 +144,41 @@ if [ "$HAS_CMUX" = "1" ]; then
   done < <(cmux list-pane-surfaces 2>/dev/null | awk '/\[browser\]/ {print $2}')
   echo "[bal-converge] 기존 browser surface ${CLOSED}개 정리"
 
-  # 2. dashboard pane 2개 생성:
-  #    - CONVERGE_SURF: converge_run session 전용 (KPI/apply meta 패널 시각화). 사이클 전체 거동 보존.
-  #    - GAME_SURF:     매 사이클의 game session 전용 (실시간 시계열 차트). 매 /bal-run 후 selector 자동 갱신.
-  NEW1=$(cmux new-pane --type browser --direction right --url "http://localhost:8000/dashboard" 2>&1)
-  CONVERGE_SURF=$(echo "$NEW1" | grep -oE 'surface:[0-9]+' | head -1)
-  NEW2=$(cmux new-pane --type browser --direction down --url "http://localhost:8000/dashboard" 2>&1)
-  GAME_SURF=$(echo "$NEW2" | grep -oE 'surface:[0-9]+' | head -1)
+  # 2. dashboard pane 2개 생성 (결정론적 레이아웃: claude(좌) | GAME(우상) / CONVERGE(우하)):
+  #    - GAME_SURF:     매 사이클의 game session 전용 (실시간 시계열 차트). 우상단.
+  #    - CONVERGE_SURF: converge_run session 전용 (KPI/apply meta 패널 시각화). 우하단.
+  #
+  # 주의: `cmux new-pane` 은 split 후에도 focus 를 옮기지 않는다. 두 번 연속으로 호출하면
+  #       둘 다 caller(claude) pane 기준으로 분할되어 우상/우하 레이아웃이 안 만들어진다.
+  #       그래서 첫 split 후 focus-pane 으로 새 pane 으로 옮기고, 두 번째 split 을 그 위에서 한다.
+  CALLER_PANE_REF=$(cmux identify --json 2>/dev/null | python3 -c 'import sys,json; print(json.load(sys.stdin)["caller"]["pane_ref"])' 2>/dev/null)
+
+  # (a) claude 오른쪽으로 새 browser pane → GAME (우상단)
+  NEW1=$(cmux new-pane --type browser --direction right --url "http://localhost:8000/dashboard?mode=game" 2>&1)
+  GAME_SURF=$(echo "$NEW1" | grep -oE 'surface:[0-9]+' | head -1)
+  GAME_PANE=$(echo "$NEW1" | grep -oE 'pane:[0-9]+' | head -1)
+
+  # (b) GAME pane 으로 focus 이동 (다음 split 의 기준점 결정론화)
+  [ -n "$GAME_PANE" ] && cmux focus-pane --pane "$GAME_PANE" >/dev/null 2>&1
+
+  # (c) GAME 아래로 새 browser pane → CONVERGE (우하단)
+  NEW2=$(cmux new-pane --type browser --direction down --url "http://localhost:8000/dashboard?mode=converge" 2>&1)
+  CONVERGE_SURF=$(echo "$NEW2" | grep -oE 'surface:[0-9]+' | head -1)
+
+  # (d) 원래 claude pane 으로 focus 복귀
+  [ -n "$CALLER_PANE_REF" ] && cmux focus-pane --pane "$CALLER_PANE_REF" >/dev/null 2>&1
 
   if [ -z "$CONVERGE_SURF" ] || [ -z "$GAME_SURF" ]; then
-    echo "[bal-converge] WARNING: dashboard pane 생성 일부 실패 (converge=$CONVERGE_SURF, game=$GAME_SURF). 누락된 pane은 수동으로 열어주세요."
+    echo "[bal-converge] WARNING: dashboard pane 생성 일부 실패 (game=$GAME_SURF, converge=$CONVERGE_SURF). 누락된 pane은 수동으로 열어주세요."
   else
-    echo "[bal-converge] dashboard panes: converge=$CONVERGE_SURF, game=$GAME_SURF"
+    echo "[bal-converge] dashboard panes: game=$GAME_SURF (우상단), converge=$CONVERGE_SURF (우하단)"
   fi
 fi
 ```
 
 **설계 메모:**
 - 두 pane으로 분리하는 이유: PlayTrace dashboard는 한 페이지 = 한 session selector. KPI/apply 패널(converge_run session)과 실시간 게임 시계열(매 사이클마다 새 game session)을 동시에 보려면 pane 2개가 필요. 하나만 두면 매 사이클 selector 스위치 때 KPI 누적 거동을 잃거나 게임 시계열을 못 봄.
+- 레이아웃 규약: `claude(좌) | GAME(우상) / CONVERGE(우하)`. 시선 흐름은 위(현재 iter 실시간) → 아래(누적 KPI 거동). 이 순서는 `new-pane` 두 번 사이에 `focus-pane` 으로 새 pane 에 명시적 focus 를 옮겨야 결정론적으로 만들어진다 — `new-pane` 은 자동 focus 이동을 하지 않는다.
 - `cmux browser open-split` 도 동일 효과지만 split panel 구조 안에서 `list-pane-surfaces` 의 `[browser]` 필터링이 일관되지 않을 수 있다. `new-pane --type browser` 는 독립 pane을 만들어 다음 사이클 cleanup 시점에 분명히 잡힌다.
 - cleanup 은 **현재 workspace 안** 의 browser surface 만 대상. 다른 workspace의 브라우저 pane(예: Obsidian, ml-tensorboard 등)은 건드리지 않는다.
 - `/bal-run` 이 자체 dashboard pane을 만들지 않도록(중복 누적 방지) bal-converge 안의 bal-run 호출은 인라인 폴링 패턴을 권장. 별도 호출이라면 사이클 끝나면 dashboard 가 누적될 수 있다 — 다음 `/bal-converge` 실행 시 자동 정리됨 (이 섹션의 step 1).

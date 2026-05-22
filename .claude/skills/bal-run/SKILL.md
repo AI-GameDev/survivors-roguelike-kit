@@ -241,7 +241,7 @@ if [ -n "$EXISTING_GAME" ]; then
   SURF="$EXISTING_GAME"
   echo "Reusing dashboard surface → $SURF"
 else
-  SURF=$(cmux new-pane --type browser --direction right --url "http://localhost:8000/dashboard" 2>&1 | grep -oE 'surface:[0-9]+' | head -1)
+  SURF=$(cmux new-pane --type browser --direction right --url "http://localhost:8000/dashboard?mode=game" 2>&1 | grep -oE 'surface:[0-9]+' | head -1)
   echo "Created dashboard surface → $SURF"
 fi
 sleep 2
