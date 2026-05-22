@@ -222,17 +222,28 @@ if [ -z "$CMUX_WORKSPACE_ID" ]; then
 else
   HAS_CMUX=1
 fi
+
+# (5) [MANDATORY when HAS_CMUX=1] dashboard pane 점검 — §"대시보드 셋업" 진입.
+# 단독 호출이든 bal-converge 안의 인라인 호출이든, dashboard pane 이 살아있고 fresh 한지 확인.
+# 세션 resume / pane 손실 / 다른 workspace 이동 등으로 매번 점검 필요. 사용자가 묻기 전 처리.
 ```
 
-이전 버전과 다른 점: **`MLAgentBootstrap` 같은 게임-종속 클래스명 체크는 하지 않는다**. PlayTrace 통합 여부는 "Editor play 후 새 session이 생성되는가" 단일 신호로 일반 검증한다 (아래).
+> **흐름 진입의 절대 룰**: `/bal-run` 호출 / 세션 resume / 재시도 — 어떤 경우든 (1)~(5) 사전 점검을 모두 통과시킨다. (5) dashboard pane 점검은 cmux 환경이면 mandatory; 사용자가 "dashboard 안 보여?" 묻기 전에 reflexively 챙긴다. bal-converge 안에서 호출될 때는 caller 가 이미 두 pane (CONVERGE+GAME) 을 만들어 놨을 수 있으므로, 그 경우엔 GAME pane 만 §"대시보드를 새 session으로 맞추기" 단계에서 갱신.
 
 ---
 
 ## 대시보드 셋업 (cmux 환경에서만)
 
 ```bash
-SURF=$(cmux browser open-split http://localhost:8000/dashboard 2>&1 | grep -oE 'surface:[0-9]+' | head -1)
-echo "Dashboard split → $SURF"
+# 기존 GAME 용 dashboard pane 이 살아있나? (bal-converge caller 또는 직전 단독 호출이 남긴 것 재사용)
+EXISTING_GAME=$(cmux list-pane-surfaces 2>/dev/null | awk '/\[browser\]/ {print $2}' | tail -1)
+if [ -n "$EXISTING_GAME" ]; then
+  SURF="$EXISTING_GAME"
+  echo "Reusing dashboard surface → $SURF"
+else
+  SURF=$(cmux new-pane --type browser --direction right --url "http://localhost:8000/dashboard" 2>&1 | grep -oE 'surface:[0-9]+' | head -1)
+  echo "Created dashboard surface → $SURF"
+fi
 sleep 2
 ```
 
