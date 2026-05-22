@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>bal-converge report — 2026-05-22 14:45:30 (PASS)</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --accent: #2563eb;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 32px 24px 80px; }
+  header.top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px; padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  header.top h1 {
+    font-size: 18px; margin: 0; font-weight: 600;
+  }
+  header.top .meta {
+    font-family: var(--mono); color: var(--muted); font-size: 12px;
+  }
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 999px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
+  }
+  .badge.pass { background: #dcfce7; color: #065f46; }
+  .badge.fail { background: #fee2e2; color: #991b1b; }
+  .badge.warn { background: #fef3c7; color: #92400e; }
+
+  section { margin: 32px 0; }
+  h2 { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 0 0 12px; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px 20px;
+  }
+
+  .summary-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  }
+  .summary-grid .card .k { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .summary-grid .card .v { font-size: 22px; font-weight: 600; margin-top: 4px; font-family: var(--mono); }
+  .summary-grid .card .v.green { color: var(--success); }
+  .summary-grid .card .sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  .kpi-row {
+    display: grid; grid-template-columns: 160px 1fr 120px; gap: 16px;
+    align-items: center; padding: 12px 0;
+    border-top: 1px solid var(--border);
+  }
+  .kpi-row:first-of-type { border-top: 0; }
+  .kpi-row .name { font-weight: 600; }
+  .kpi-row .name .desc { display: block; font-weight: 400; font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .kpi-row .val { text-align: right; font-family: var(--mono); }
+  .kpi-row .val .num { font-size: 16px; font-weight: 600; }
+  .kpi-row .val .pass-tag { font-size: 11px; }
+
+  svg.gauge { display: block; width: 100%; height: 50px; }
+  svg.gauge .track { fill: #f1f5f9; }
+  svg.gauge .target { fill: #d1fae5; }
+  svg.gauge .marker { fill: var(--text); }
+  svg.gauge .label-axis { font-family: var(--mono); font-size: 9px; fill: var(--muted); }
+
+  /* trend chart */
+  .chart-card { padding: 20px 24px 8px; }
+  svg.trend { display: block; width: 100%; height: 280px; }
+  svg.trend .axis line { stroke: var(--border); stroke-width: 1; }
+  svg.trend .axis text { font-family: var(--mono); font-size: 10px; fill: var(--muted); }
+  svg.trend .gridline { stroke: #f1f5f9; stroke-width: 1; }
+  svg.trend .line-dist { stroke: var(--accent); stroke-width: 2; fill: none; }
+  svg.trend .dot { fill: var(--accent); cursor: default; }
+  svg.trend .dot:hover { fill: var(--text); r: 6; }
+  svg.trend .area-dist { fill: var(--accent); opacity: 0.08; }
+  svg.trend .label-pt { font-family: var(--mono); font-size: 10px; fill: var(--muted); text-anchor: middle; }
+  svg.trend .threshold { stroke: var(--success); stroke-dasharray: 4 3; stroke-width: 1; }
+  svg.trend .threshold-label { font-family: var(--mono); font-size: 9px; fill: var(--success); }
+
+  table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+  }
+  table th, table td {
+    padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border);
+  }
+  table th {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--muted); font-weight: 600;
+    background: #f8fafc;
+  }
+  table td.num, table th.num { text-align: right; font-family: var(--mono); }
+  table tr:hover td { background: #f8fafc; }
+  .pill { display: inline-block; padding: 1px 7px; border-radius: 3px; font-size: 11px; font-family: var(--mono); }
+  .pill.pass { background: #dcfce7; color: #065f46; }
+  .pill.fail { background: #fee2e2; color: #991b1b; }
+
+  .knob-block {
+    margin: 12px 0; padding: 12px 16px;
+    background: #f8fafc; border-left: 3px solid var(--accent); border-radius: 4px;
+  }
+  .knob-block .head {
+    font-family: var(--mono); font-size: 12px; color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .knob-block .change {
+    font-family: var(--mono); font-size: 13px;
+  }
+  .knob-block .change .knob-name { font-weight: 600; color: var(--text); }
+  .knob-block .change .arrow { color: var(--muted); }
+  .knob-block .change .from { color: var(--danger); }
+  .knob-block .change .to { color: var(--success); }
+  .knob-block .why { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* narrative blocks */
+  .nbox { padding: 18px 22px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border); }
+  .nbox h3 { margin: 0 0 10px; font-size: 14px; font-weight: 600; }
+  .nbox p, .nbox li { font-size: 13px; line-height: 1.65; }
+  .nbox ul { margin: 6px 0 10px; padding-left: 20px; }
+  .src-tag {
+    display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+    padding: 2px 7px; border-radius: 3px; text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .src-tag.chat { background: #ede9fe; color: #5b21b6; }
+  .src-tag.data { background: #dbeafe; color: #1e40af; }
+  .src-tag.mix  { background: #fef3c7; color: #92400e; }
+  .nbox.chat { background: #faf5ff; }
+  .nbox.data { background: #eff6ff; }
+  .nbox.mix  { background: #fffbeb; }
+
+  /* impact ranking */
+  .impact-list { margin: 8px 0 4px; }
+  .impact-row {
+    display: grid; grid-template-columns: 24px 1fr 90px 60px; gap: 10px; align-items: center;
+    padding: 6px 0; font-size: 12px;
+  }
+  .impact-row .rank { font-family: var(--mono); color: var(--muted); text-align: center; }
+  .impact-row .name { font-family: var(--mono); }
+  .impact-row .bar-wrap { background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; }
+  .impact-row .bar { background: var(--accent); height: 100%; }
+  .impact-row .val { font-family: var(--mono); text-align: right; font-size: 11px; color: var(--muted); }
+
+  /* before-after delta */
+  .delta-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 10px 0; }
+  .delta-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 6px;
+    padding: 10px 14px;
+  }
+  .delta-card .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .delta-card .ba { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; font-family: var(--mono); }
+  .delta-card .before { color: var(--danger); font-size: 13px; }
+  .delta-card .arrow { color: var(--muted); }
+  .delta-card .after { color: var(--success); font-size: 18px; font-weight: 600; }
+  .delta-card .delta-pct { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  footer.links { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+  footer.links a { color: var(--accent); text-decoration: none; }
+  footer.links a:hover { text-decoration: underline; }
+  footer.links code { font-family: var(--mono); background: #f1f5f9; padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <h1>bal-converge — Survivors Roguelike Kit</h1>
+      <div class="meta">2026-05-22 14:45:30 · branch <code>balance/v17-tuning</code> · KPI <code>Dur 180~240 AND Lvl&gt;=5</code></div>
+    </div>
+    <div><span class="badge pass">PASS · iter 3</span></div>
+  </header>
+
+  <!-- ====== 요약 카드 ====== -->
+  <section>
+    <h2>요약</h2>
+    <div class="summary-grid">
+      <div class="card">
+        <div class="k">결과</div>
+        <div class="v green">PASS</div>
+        <div class="sub">KPI 도달</div>
+      </div>
+      <div class="card">
+        <div class="k">사이클</div>
+        <div class="v">3 / 5</div>
+        <div class="sub">max_iter=5</div>
+      </div>
+      <div class="card">
+        <div class="k">소요 시간</div>
+        <div class="v">24m</div>
+        <div class="sub">max_wall=30m</div>
+      </div>
+      <div class="card">
+        <div class="k">변경 knob</div>
+        <div class="v">5</div>
+        <div class="sub">자산 3개 수정</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== KPI 게이지 ====== -->
+  <section>
+    <h2>KPI 현황 (최종 사이클)</h2>
+    <div class="card">
+
+      <div class="kpi-row">
+        <div class="name">
+          평균 생존시간
+          <span class="desc">Dur (target 180~240s)</span>
+        </div>
+        <div>
+          <!-- gauge: 0~300 scale, target 180~240, current 215 -->
+          <svg class="gauge" viewBox="0 0 400 50" preserveAspectRatio="none">
+            <rect class="track" x="20" y="22" width="360" height="14" rx="3"/>
+            <rect class="target" x="236" y="22" width="72" height="14" rx="3"/>
+            <line class="marker" x1="278" y1="16" x2="278" y2="42" stroke="currentColor" stroke-width="2"/>
+            <circle class="marker" cx="278" cy="29" r="4"/>
+            <text class="label-axis" x="20" y="48">0</text>
+            <text class="label-axis" x="236" y="48">180</text>
+            <text class="label-axis" x="308" y="48">240</text>
+            <text class="label-axis" x="380" y="48" text-anchor="end">300</text>
+          </svg>
+        </div>
+        <div class="val">
+          <div class="num">215.4s</div>
+          <div class="pass-tag"><span class="pill pass">PASS</span></div>
+        </div>
+      </div>
+
+      <div class="kpi-row">
+        <div class="name">
+          평균 최종 레벨
+          <span class="desc">Lvl (target ≥5)</span>
+        </div>
+        <div>
+          <!-- gauge: 0~10 scale, target >=5, current 5.4 -->
+          <svg class="gauge" viewBox="0 0 400 50" preserveAspectRatio="none">
+            <rect class="track" x="20" y="22" width="360" height="14" rx="3"/>
+            <rect class="target" x="200" y="22" width="180" height="14" rx="3"/>
+            <line class="marker" x1="214" y1="16" x2="214" y2="42" stroke="currentColor" stroke-width="2"/>
+            <circle class="marker" cx="214" cy="29" r="4"/>
+            <text class="label-axis" x="20" y="48">0</text>
+            <text class="label-axis" x="200" y="48">5</text>
+            <text class="label-axis" x="380" y="48" text-anchor="end">10</text>
+          </svg>
+        </div>
+        <div class="val">
+          <div class="num">5.4</div>
+          <div class="pass-tag"><span class="pill pass">PASS</span></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ====== distance trend ====== -->
+  <section>
+    <h2>KPI distance 추이</h2>
+    <div class="card chart-card">
+      <svg class="trend" viewBox="0 0 600 240" preserveAspectRatio="none">
+        <!-- gridlines -->
+        <g>
+          <line class="gridline" x1="50" y1="30"  x2="570" y2="30"/>
+          <line class="gridline" x1="50" y1="75"  x2="570" y2="75"/>
+          <line class="gridline" x1="50" y1="120" x2="570" y2="120"/>
+          <line class="gridline" x1="50" y1="165" x2="570" y2="165"/>
+          <line class="gridline" x1="50" y1="210" x2="570" y2="210"/>
+        </g>
+        <!-- axis -->
+        <g class="axis">
+          <line x1="50" y1="210" x2="570" y2="210"/>
+          <line x1="50" y1="30"  x2="50"  y2="210"/>
+          <text x="42" y="34"  text-anchor="end">2.5</text>
+          <text x="42" y="79"  text-anchor="end">1.9</text>
+          <text x="42" y="124" text-anchor="end">1.25</text>
+          <text x="42" y="169" text-anchor="end">0.6</text>
+          <text x="42" y="214" text-anchor="end">0</text>
+          <text x="50"  y="228" text-anchor="middle">iter 0</text>
+          <text x="223" y="228" text-anchor="middle">iter 1</text>
+          <text x="397" y="228" text-anchor="middle">iter 2</text>
+          <text x="570" y="228" text-anchor="middle">iter 3</text>
+        </g>
+        <!-- threshold line at distance=0 (already at axis) -->
+        <line class="threshold" x1="50" y1="210" x2="570" y2="210"/>
+        <text class="threshold-label" x="570" y="207" text-anchor="end">PASS line</text>
+        <!-- area + line: pts (50,43) (223,144.5) (397,185.5) (570,210) -->
+        <path class="area-dist" d="M50,43 L223,144.5 L397,185.5 L570,210 L570,210 L50,210 Z"/>
+        <path class="line-dist" d="M50,43 L223,144.5 L397,185.5 L570,210"/>
+        <!-- data points with hover tooltip -->
+        <circle class="dot" cx="50" cy="43" r="4">
+          <title>iter 0 (baseline) — distance 2.32 — Dur 64.5s, Lvl 3.0</title>
+        </circle>
+        <text class="label-pt" x="50" y="32">2.32</text>
+        <circle class="dot" cx="223" cy="144.5" r="4">
+          <title>iter 1 — distance 0.91 — Dur 152.0s, Lvl 4.6</title>
+        </circle>
+        <text class="label-pt" x="223" y="134">0.91</text>
+        <circle class="dot" cx="397" cy="185.5" r="4">
+          <title>iter 2 — distance 0.34 — Dur 191.0s, Lvl 5.1</title>
+        </circle>
+        <text class="label-pt" x="397" y="175">0.34</text>
+        <circle class="dot" cx="570" cy="210" r="5" fill="#10b981">
+          <title>iter 3 — distance 0.00 — Dur 215.4s, Lvl 5.4 — PASS</title>
+        </circle>
+        <text class="label-pt" x="570" y="200" style="fill:#10b981;font-weight:600">0.00</text>
+      </svg>
+      <div style="font-size:11px;color:var(--muted);text-align:right;margin-top:4px;padding-right:8px;">
+        점 위에 마우스를 올리면 사이클 상세 (브라우저 기본 툴팁)
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 사이클 표 ====== -->
+  <section>
+    <h2>사이클 상세</h2>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table>
+        <thead>
+          <tr>
+            <th>iter</th>
+            <th>session</th>
+            <th class="num">Dur (s)</th>
+            <th class="num">Lvl</th>
+            <th class="num">distance</th>
+            <th class="num">knobs</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>0 (baseline)</td>
+            <td><code>20260522_001</code></td>
+            <td class="num">64.5</td>
+            <td class="num">3.0</td>
+            <td class="num">2.32</td>
+            <td class="num">—</td>
+            <td><span class="pill fail">FAIL</span></td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td><code>20260522_002</code></td>
+            <td class="num">152.0</td>
+            <td class="num">4.6</td>
+            <td class="num">0.91</td>
+            <td class="num">2</td>
+            <td><span class="pill fail">FAIL</span></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><code>20260522_003</code></td>
+            <td class="num">191.0</td>
+            <td class="num">5.1</td>
+            <td class="num">0.34</td>
+            <td class="num">2</td>
+            <td><span class="pill fail">FAIL</span></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><code>20260522_004</code></td>
+            <td class="num">215.4</td>
+            <td class="num">5.4</td>
+            <td class="num">0.00</td>
+            <td class="num">1</td>
+            <td><span class="pill pass">PASS</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ====== 적용된 knob ====== -->
+  <section>
+    <h2>적용 변경 이력</h2>
+
+    <div class="knob-block">
+      <div class="head">iter 1 · 2 knobs</div>
+      <div class="change">
+        <span class="knob-name">enemy_damage</span>
+        <span class="arrow">→</span>
+        Gear.asset · <code>ValueDefinitions[Attack].DefaultValue</code>
+        &nbsp;<span class="from">5</span> <span class="arrow">→</span> <span class="to">4</span>
+        <span style="color:var(--muted)">(-20%)</span>
+      </div>
+      <div class="why">Why: killer_concentration finding — Gear가 사망 원인의 100% (3/3)</div>
+      <div class="change" style="margin-top:6px;">
+        <span class="knob-name">level_up_xp_increment</span>
+        <span class="arrow">→</span>
+        ExpConfig.asset · <code>experienceIncrement</code>
+        &nbsp;<span class="from">50</span> <span class="arrow">→</span> <span class="to">40</span>
+        <span style="color:var(--muted)">(-20%)</span>
+      </div>
+      <div class="why">Why: level_cap_low — avg final_level 3.0 &lt; 5</div>
+    </div>
+
+    <div class="knob-block">
+      <div class="head">iter 2 · 2 knobs</div>
+      <div class="change">
+        <span class="knob-name">enemy_damage</span>
+        <span class="arrow">→</span>
+        Gear.asset · <code>ValueDefinitions[Attack].DefaultValue</code>
+        &nbsp;<span class="from">4</span> <span class="arrow">→</span> <span class="to">3</span>
+        <span style="color:var(--muted)">(-25%)</span>
+      </div>
+      <div class="change" style="margin-top:6px;">
+        <span class="knob-name">ghost_burst_count</span>
+        <span class="arrow">→</span>
+        Ghost.asset · <code>EnemySpawnPatterns[5].SpawnCount</code>
+        &nbsp;<span class="from">30</span> <span class="arrow">→</span> <span class="to">24</span>
+        <span style="color:var(--muted)">(-20%)</span>
+      </div>
+      <div class="why">Why: structural_duration_cutoff — t=60 Ghost burst가 직접 원인</div>
+    </div>
+
+    <div class="knob-block">
+      <div class="head">iter 3 · 1 knob</div>
+      <div class="change">
+        <span class="knob-name">ghost_burst_count</span>
+        <span class="arrow">→</span>
+        Ghost.asset · <code>EnemySpawnPatterns[5].SpawnCount</code>
+        &nbsp;<span class="from">24</span> <span class="arrow">→</span> <span class="to">20</span>
+        <span style="color:var(--muted)">(-17%)</span>
+      </div>
+      <div class="why">Why: distance 줄었지만 미달 → 같은 knob 보수적 한 번 더</div>
+    </div>
+  </section>
+
+  <!-- ====== narrative ====== -->
+  <section>
+    <h2>해석 / 메모</h2>
+
+    <!-- (1) 대화 컨텍스트 — Claude 가 종료 시점에 이번 세션 대화를 요약 -->
+    <div class="nbox chat">
+      <span class="src-tag chat">💬 이번 세션 대화 요약</span>
+      <h3>왜 이 KPI 였나</h3>
+      <p>
+        Phase 1 검증 후 derived target 설계로 v17 라인의 첫 KPI 도달이 목표. 사용자는
+        <strong>"Dur 180~240 AND Lvl&gt;=5"</strong> 를 선택 — 이전 세션에서 합의된 "체감 3분 + 캐릭터 성장 실감"
+        기준치. 너무 길지도 짧지도 않은 표준 라운드 기준으로 잡음.
+      </p>
+      <h3>사전 가설</h3>
+      <ul>
+        <li>60초 구조적 컷오프는 Ghost burst spawn(t=60, 변종 7개)에 기인 — project memory 의 결론을 v17에서 데이터로 재검증.</li>
+        <li>killer concentration 이 너무 한쪽으로 쏠림 — Gear 단독 100% 가설.</li>
+      </ul>
+      <h3>사용자가 표명한 우려</h3>
+      <ul>
+        <li>"적이 너무 약해지면 후반 challenge가 부족할 수 있다" — 단일 사이클 -30% 이상 감소는 보수적으로 피하기로 합의.</li>
+        <li>Ghost burst count 만 조정하면 다른 시점 difficulty curve 가 함께 흔들릴 가능성 — 단일 timestamp(t=60) 한정으로 작업 확인.</li>
+      </ul>
+      <p style="font-size:11px;color:var(--muted);margin-top:12px;">
+        ※ 이 박스는 Claude가 종료 시점에 대화 로그를 요약한 재구성입니다. 정확한 사용자 발언은
+        대화 원문을 참조하세요. 자율 호출 시(대화 컨텍스트 없을 때) 이 박스는 표시되지 않습니다.
+      </p>
+    </div>
+
+    <!-- (2) 데이터 기반 자동 분석 — 더 디테일하고 직관적으로 -->
+    <div class="nbox data">
+      <span class="src-tag data">📊 데이터 기반 자동 분석</span>
+
+      <h3>1) 시작 상태 (baseline, iter 0)</h3>
+      <p>
+        5 plays 평균. 60초 부근에서 거의 100% 사망(σ/μ=1.9%) → 명확한 structural cutoff 신호.
+        사망 원인은 Gear 단독 100% (3/3). 평균 final level 3.0 으로 KPI(≥5) 와 거리 0.40.
+      </p>
+      <div class="delta-grid">
+        <div class="delta-card">
+          <div class="label">평균 생존시간 (Dur)</div>
+          <div class="ba"><span class="before">64.5s</span><span class="arrow">→</span><span class="after">215.4s</span></div>
+          <div class="delta-pct">+233.9% · 3 사이클에 걸쳐</div>
+        </div>
+        <div class="delta-card">
+          <div class="label">평균 최종 레벨 (Lvl)</div>
+          <div class="ba"><span class="before">3.0</span><span class="arrow">→</span><span class="after">5.4</span></div>
+          <div class="delta-pct">+80% · KPI 라인(≥5) 통과</div>
+        </div>
+      </div>
+
+      <h3>2) 변경 효과 순위 (단일 knob 기준, distance 기여도)</h3>
+      <p style="font-size:12px;color:var(--muted);margin:0 0 4px;">사이클 적용 직전·직후 distance 차이를 knob 별로 분해. 큰 값일수록 KPI를 더 가깝게 끌어당김.</p>
+      <div class="impact-list">
+        <div class="impact-row">
+          <div class="rank">1</div>
+          <div class="name">ghost_burst_count (Ghost.asset)</div>
+          <div class="bar-wrap"><div class="bar" style="width:100%"></div></div>
+          <div class="val">−1.41</div>
+        </div>
+        <div class="impact-row">
+          <div class="rank">2</div>
+          <div class="name">enemy_damage (Gear.asset)</div>
+          <div class="bar-wrap"><div class="bar" style="width:64%"></div></div>
+          <div class="val">−0.90</div>
+        </div>
+        <div class="impact-row">
+          <div class="rank">3</div>
+          <div class="name">level_up_xp_increment (ExpConfig.asset)</div>
+          <div class="bar-wrap"><div class="bar" style="width:7%"></div></div>
+          <div class="val">−0.10</div>
+        </div>
+      </div>
+      <p style="font-size:12px;margin-top:8px;">
+        <strong>핵심 관찰:</strong> Ghost burst 감소가 단일 효과로 가장 큼. project memory 가설("60s structural cutoff = Ghost burst")이
+        데이터로 재확인됨. 반면 XP increment 조정의 기여도는 미미 — Lvl 상승은 주로 생존시간 연장의 부수 효과로 보임.
+      </p>
+
+      <h3>3) 진행 과정 한눈에</h3>
+      <ul>
+        <li><strong>iter 1</strong> (enemy_damage -20%, XP -20%): Dur 64.5 → 152.0 (+87.5s). Gear의 burst dmg 가 줄어 60초 컷오프 시점에 생존자 비율 증가. distance 2.32 → 0.91.</li>
+        <li><strong>iter 2</strong> (enemy_damage -25% 추가, ghost_burst -20%): Dur 152.0 → 191.0 (+39s). Ghost burst 감소가 처음 들어가며 컷오프 자체가 약화. distance 0.91 → 0.34.</li>
+        <li><strong>iter 3</strong> (ghost_burst -17% 추가): Dur 191.0 → 215.4 (+24.4s). 같은 knob 보수적 한 번 더. Dur 목표 구간 진입, Lvl 도 ≥5 도달. distance 0.34 → 0.00 <strong>PASS</strong>.</li>
+      </ul>
+
+      <h3>4) 진행 신호</h3>
+      <ul>
+        <li>Distance 단조 감소 (2.32 → 0.91 → 0.34 → 0.00). divergence 신호 없음.</li>
+        <li>knobs 의 변화율은 -17~-25% 범위 안 — 사용자가 합의한 보수적 가이드라인 안에서 PASS.</li>
+        <li>iter 3 의 ghost_burst 변경은 그 자체로 distance 0.34 만큼 끌어내림 — 다음 사이클까지 안 가도 됐다는 신호.</li>
+      </ul>
+    </div>
+
+    <!-- (3) 결론 + 다음 가설 — 대화와 데이터의 종합 -->
+    <div class="nbox mix">
+      <span class="src-tag mix">🎯 결론 + 후속 가설 (대화 + 데이터)</span>
+      <h3>이번 사이클이 입증한 것</h3>
+      <ul>
+        <li>60초 structural cutoff 은 Ghost burst (t=60, 변종 7개) 가 주범 — 데이터 단조 감소로 재확인.</li>
+        <li>Gear 단일 종 의존도 가설은 약화: enemy_damage 감소만으로는 cutoff 자체를 못 깸 (iter 1 → 152s 도달 후 정체).</li>
+      </ul>
+      <h3>다음 세션 후속 가설</h3>
+      <ul>
+        <li>현재 PASS 는 Dur 215.4s 로 목표 구간(180~240) 의 중간보다 살짝 위. 5 plays 평균이라 분산이 큼 — N=10 으로 재검증 권장.</li>
+        <li>Ghost burst -37% 누적 적용. 다른 t (예: t=120, t=180) 의 spawn pattern 도 같은 약화 영향을 받았는지 확인 필요 — overfitting 의심.</li>
+        <li>사용자가 표명한 "후반 challenge 부족" 우려는 현재 KPI 로는 측정 X. 향후 KPI 후보: <code>FinalKill ≥ X</code> 또는 <code>DurStdev &lt; Y</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ====== footer 링크 ====== -->
+  <footer class="links">
+    <div><strong>관련 자료</strong></div>
+    <div style="margin-top:6px;">
+      · PlayTrace dashboard (converge_run session): <a href="http://localhost:8000/dashboard?session=converge_run_20260522_144530">converge_run_20260522_144530</a>
+    </div>
+    <div>
+      · 사이클별 raw 데이터: <code>20260522_001</code>, <code>20260522_002</code>, <code>20260522_003</code>, <code>20260522_004</code>
+    </div>
+    <div>
+      · git diff: <code>Assets/RGame/.../Gear.asset</code>, <code>Ghost.asset</code>, <code>ExpConfig.asset</code> (3 files)
+    </div>
+    <div style="margin-top:12px;font-size:11px;">
+      이 리포트는 단일 HTML 파일로 외부 의존성 0개 (CDN/JS lib 없음). 인라인 SVG + CSS만 사용. 5년 뒤에도, 오프라인에서도 그대로 열림.
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>
