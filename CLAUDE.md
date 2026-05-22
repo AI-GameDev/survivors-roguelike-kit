@@ -104,6 +104,10 @@ mlagents-learn configs/<name>.yaml --run-id=<id> --time-scale 20
 - **서버는 사용자가 직접 띄움** (uvicorn). Claude는 작업 전 `curl -s -m 3 http://localhost:8000/health` 로 health 체크만 하고, 서버 시작 시도는 하지 않는다. 죽어있으면 "서버가 응답 안 합니다 — 띄워 주세요" 한 줄로 안내.
 - **API/필드/예제/대시보드 사용법의 단일 진실 소스는 `PlayTrace/docs/MANUAL.md`**. POST/GET payload, `LogItem` `value_type` 분기, session 생성 규칙, 안티패턴 등 모두 여기서 1차 확인. skill 본문 코드 (bal-* SKILL.md)는 사용 패턴 가이드일 뿐이며, payload 형식 충돌 시 MANUAL.md가 우선.
 
+## 세션 인계
+
+**세션 시작 시 `docs/hand-off.md` 가 존재하면 다른 작업 전에 먼저 읽어 이전 세션의 상태·결정 대기 항목·미해결 가설을 파악한다.** 이 파일은 `.gitignore` 영역의 로컬 인계용 메모로, 매 세션 종료 시 다음 세션에 정말 필요한 정보가 있으면 갱신한다 (없으면 비우거나 그대로 둠 — 억지로 항목 만들지 말 것). 표준 환경 체크(git status, PlayTrace health 등)는 핸드오프에 반복하지 않고 필요할 때만 실행.
+
 ## Working Guidelines
 
 Behavioral guidelines to reduce common LLM coding mistakes.
