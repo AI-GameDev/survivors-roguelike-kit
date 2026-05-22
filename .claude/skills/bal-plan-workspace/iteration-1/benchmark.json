@@ -1,0 +1,413 @@
+{
+  "metadata": {
+    "skill_name": "bal-plan",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-05-22T07:53:26Z",
+    "evals_run": [
+      0,
+      1,
+      2
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 190.7,
+        "tokens": 86029,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "plan.md file exists and is non-trivial (>500 chars)",
+          "passed": true,
+          "evidence": "plan.md = 4275 chars"
+        },
+        {
+          "text": "summary.md file exists",
+          "passed": true,
+          "evidence": "summary.md = 3130 chars"
+        },
+        {
+          "text": "Plan contains a recommended /bal-converge command on a copy-pasteable line",
+          "passed": true,
+          "evidence": "matched: /bal-converge kpi=\"Dur 180~240 AND Lvl>=5\" N=5 max_iter=3"
+        },
+        {
+          "text": "Recommended command includes a kpi= argument",
+          "passed": true,
+          "evidence": "matched: /bal-converge kpi="
+        },
+        {
+          "text": "Plan references the prior converge report history (mentions max_iter or a prior report timestamp/reason)",
+          "passed": true,
+          "evidence": "found marker: 'max_iter'"
+        },
+        {
+          "text": "Plan surfaces at least one memory trap (enemy_damage int round-trip OR Ghost burst spawn / structural cutoff)",
+          "passed": true,
+          "evidence": "enemy_damage round-trip; Ghost burst / structural cutoff"
+        },
+        {
+          "text": "Knob whitelist section references actual knob ids from .claude/bal-apply.json (e.g. enemy_damage, spawn_rate, level_up_xp_increment) \u2014 not invented names",
+          "passed": true,
+          "evidence": "real knob ids found (6): ['enemy_damage', 'enemy_hp', 'level_up_xp_increment', 'player_max_hp', 'spawn_intensity_curve', 'spawn_rate']"
+        },
+        {
+          "text": "Plan does NOT claim /bal-converge was executed (single-pass guarantee)",
+          "passed": true,
+          "evidence": "no execution claim detected"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 133.0,
+        "tokens": 69267,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "plan.md file exists and is non-trivial (>500 chars)",
+          "passed": true,
+          "evidence": "plan.md = 2833 chars"
+        },
+        {
+          "text": "summary.md file exists",
+          "passed": true,
+          "evidence": "summary.md = 2152 chars"
+        },
+        {
+          "text": "Plan KPI section uses Dur>=120 (the user-provided KPI, not config default)",
+          "passed": true,
+          "evidence": "Dur>=120 present"
+        },
+        {
+          "text": "Plan budget section reflects smoke mode: N<=2 AND max_iter=1",
+          "passed": true,
+          "evidence": "command: N=2 max_iter=1"
+        },
+        {
+          "text": "Recommended command contains kpi=\"Dur>=120\"",
+          "passed": true,
+          "evidence": "found"
+        },
+        {
+          "text": "Recommended command contains N=2 AND max_iter=1",
+          "passed": true,
+          "evidence": "/bal-converge kpi=\"Dur>=120\" N=2 max_iter=1"
+        },
+        {
+          "text": "Plan acknowledges that smoke mode is pipeline-validation only (signals not expected)",
+          "passed": true,
+          "evidence": "smoke caveat present"
+        },
+        {
+          "text": "Plan does NOT claim /bal-converge was executed",
+          "passed": true,
+          "evidence": "no execution claim detected"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 146.4,
+        "tokens": 77218,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "plan.md file exists and is non-trivial (>500 chars)",
+          "passed": true,
+          "evidence": "plan.md = 3400 chars"
+        },
+        {
+          "text": "summary.md file exists",
+          "passed": true,
+          "evidence": "summary.md = 1536 chars"
+        },
+        {
+          "text": "Summary documents defaults taken for all 4 Q&A questions (KPI, Baseline, Knob whitelist, Budget)",
+          "passed": true,
+          "evidence": "Q&A markers in summary: 4"
+        },
+        {
+          "text": "Plan has all 6 sections per SKILL.md template: Context, Direction, Hypothesis priority (or noted as skipped), Traps, Recommended command, Post-run checklist",
+          "passed": true,
+          "evidence": "5/5 core sections found"
+        },
+        {
+          "text": "Recommended command is a single copy-pasteable /bal-converge line with no placeholders or pseudocode",
+          "passed": true,
+          "evidence": "/bal-converge kpi=\"Dur 180~240 AND Lvl>=5\" N=5 max_iter=3"
+        },
+        {
+          "text": "Plan references actual knob ids from .claude/bal-apply.json (not invented)",
+          "passed": true,
+          "evidence": "real knob ids found (6): ['enemy_damage', 'enemy_hp', 'level_up_xp_increment', 'player_max_hp', 'spawn_intensity_curve', 'spawn_rate']"
+        },
+        {
+          "text": "Recommended command uses only bal-converge-supported args (kpi, N, max_iter, timeout, max_wall) \u2014 no fake args like baseline= or whitelist=",
+          "passed": true,
+          "evidence": "args used: ['N', 'kpi', 'max_iter']"
+        },
+        {
+          "text": "Plan does NOT claim /bal-converge was executed",
+          "passed": true,
+          "evidence": "no execution claim detected"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.875,
+        "passed": 7,
+        "failed": 1,
+        "total": 8,
+        "time_seconds": 108.4,
+        "tokens": 59166,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "plan.md file exists and is non-trivial (>500 chars)",
+          "passed": true,
+          "evidence": "plan.md = 3299 chars"
+        },
+        {
+          "text": "summary.md file exists",
+          "passed": true,
+          "evidence": "summary.md = 1445 chars"
+        },
+        {
+          "text": "Plan contains a recommended /bal-converge command on a copy-pasteable line",
+          "passed": true,
+          "evidence": "matched: /bal-converge \\"
+        },
+        {
+          "text": "Recommended command includes a kpi= argument",
+          "passed": false,
+          "evidence": "no kpi= in /bal-converge line"
+        },
+        {
+          "text": "Plan references the prior converge report history (mentions max_iter or a prior report timestamp/reason)",
+          "passed": true,
+          "evidence": "found marker: 'max_iter'"
+        },
+        {
+          "text": "Plan surfaces at least one memory trap (enemy_damage int round-trip OR Ghost burst spawn / structural cutoff)",
+          "passed": true,
+          "evidence": "enemy_damage round-trip; Ghost burst / structural cutoff"
+        },
+        {
+          "text": "Knob whitelist section references actual knob ids from .claude/bal-apply.json (e.g. enemy_damage, spawn_rate, level_up_xp_increment) \u2014 not invented names",
+          "passed": true,
+          "evidence": "real knob ids found (6): ['enemy_damage', 'enemy_hp', 'level_up_xp_increment', 'player_max_hp', 'spawn_intensity_curve', 'spawn_rate']"
+        },
+        {
+          "text": "Plan does NOT claim /bal-converge was executed (single-pass guarantee)",
+          "passed": true,
+          "evidence": "no execution claim detected"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.875,
+        "passed": 7,
+        "failed": 1,
+        "total": 8,
+        "time_seconds": 75.0,
+        "tokens": 55877,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "plan.md file exists and is non-trivial (>500 chars)",
+          "passed": true,
+          "evidence": "plan.md = 3721 chars"
+        },
+        {
+          "text": "summary.md file exists",
+          "passed": true,
+          "evidence": "summary.md = 1119 chars"
+        },
+        {
+          "text": "Plan KPI section uses Dur>=120 (the user-provided KPI, not config default)",
+          "passed": true,
+          "evidence": "Dur>=120 present"
+        },
+        {
+          "text": "Plan budget section reflects smoke mode: N<=2 AND max_iter=1",
+          "passed": true,
+          "evidence": "command: N=2 max_iter=1"
+        },
+        {
+          "text": "Recommended command contains kpi=\"Dur>=120\"",
+          "passed": true,
+          "evidence": "found"
+        },
+        {
+          "text": "Recommended command contains N=2 AND max_iter=1",
+          "passed": true,
+          "evidence": "/bal-converge mode=smoke kpi=\"Dur>=120\" N=2 max_iter=1 per_play_timeout=180 \\"
+        },
+        {
+          "text": "Plan acknowledges that smoke mode is pipeline-validation only (signals not expected)",
+          "passed": false,
+          "evidence": "no smoke caveat"
+        },
+        {
+          "text": "Plan does NOT claim /bal-converge was executed",
+          "passed": true,
+          "evidence": "no execution claim detected"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.75,
+        "passed": 6,
+        "failed": 2,
+        "total": 8,
+        "time_seconds": 85.1,
+        "tokens": 61015,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "plan.md file exists and is non-trivial (>500 chars)",
+          "passed": true,
+          "evidence": "plan.md = 4031 chars"
+        },
+        {
+          "text": "summary.md file exists",
+          "passed": true,
+          "evidence": "summary.md = 979 chars"
+        },
+        {
+          "text": "Summary documents defaults taken for all 4 Q&A questions (KPI, Baseline, Knob whitelist, Budget)",
+          "passed": false,
+          "evidence": "Q&A markers in summary: 2"
+        },
+        {
+          "text": "Plan has all 6 sections per SKILL.md template: Context, Direction, Hypothesis priority (or noted as skipped), Traps, Recommended command, Post-run checklist",
+          "passed": false,
+          "evidence": "3/5 core sections"
+        },
+        {
+          "text": "Recommended command is a single copy-pasteable /bal-converge line with no placeholders or pseudocode",
+          "passed": true,
+          "evidence": "/bal-converge \\"
+        },
+        {
+          "text": "Plan references actual knob ids from .claude/bal-apply.json (not invented)",
+          "passed": true,
+          "evidence": "real knob ids found (6): ['enemy_damage', 'enemy_hp', 'level_up_xp_increment', 'player_max_hp', 'spawn_intensity_curve', 'spawn_rate']"
+        },
+        {
+          "text": "Recommended command uses only bal-converge-supported args (kpi, N, max_iter, timeout, max_wall) \u2014 no fake args like baseline= or whitelist=",
+          "passed": true,
+          "evidence": "args used: []"
+        },
+        {
+          "text": "Plan does NOT claim /bal-converge was executed",
+          "passed": true,
+          "evidence": "no execution claim detected"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 156.7,
+        "stddev": 30.1975,
+        "min": 133.0,
+        "max": 190.7
+      },
+      "tokens": {
+        "mean": 77504.6667,
+        "stddev": 8384.6762,
+        "min": 69267,
+        "max": 86029
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.8333,
+        "stddev": 0.0722,
+        "min": 0.75,
+        "max": 0.875
+      },
+      "time_seconds": {
+        "mean": 89.5,
+        "stddev": 17.1292,
+        "min": 75.0,
+        "max": 108.4
+      },
+      "tokens": {
+        "mean": 58686.0,
+        "stddev": 2602.4145,
+        "min": 55877,
+        "max": 61015
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.17",
+      "time_seconds": "+67.2",
+      "tokens": "+18819"
+    }
+  },
+  "notes": []
+}

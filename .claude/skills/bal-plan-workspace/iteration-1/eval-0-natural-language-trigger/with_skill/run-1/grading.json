@@ -1,0 +1,50 @@
+{
+  "expectations": [
+    {
+      "text": "plan.md file exists and is non-trivial (>500 chars)",
+      "passed": true,
+      "evidence": "plan.md = 4275 chars"
+    },
+    {
+      "text": "summary.md file exists",
+      "passed": true,
+      "evidence": "summary.md = 3130 chars"
+    },
+    {
+      "text": "Plan contains a recommended /bal-converge command on a copy-pasteable line",
+      "passed": true,
+      "evidence": "matched: /bal-converge kpi=\"Dur 180~240 AND Lvl>=5\" N=5 max_iter=3"
+    },
+    {
+      "text": "Recommended command includes a kpi= argument",
+      "passed": true,
+      "evidence": "matched: /bal-converge kpi="
+    },
+    {
+      "text": "Plan references the prior converge report history (mentions max_iter or a prior report timestamp/reason)",
+      "passed": true,
+      "evidence": "found marker: 'max_iter'"
+    },
+    {
+      "text": "Plan surfaces at least one memory trap (enemy_damage int round-trip OR Ghost burst spawn / structural cutoff)",
+      "passed": true,
+      "evidence": "enemy_damage round-trip; Ghost burst / structural cutoff"
+    },
+    {
+      "text": "Knob whitelist section references actual knob ids from .claude/bal-apply.json (e.g. enemy_damage, spawn_rate, level_up_xp_increment) — not invented names",
+      "passed": true,
+      "evidence": "real knob ids found (6): ['enemy_damage', 'enemy_hp', 'level_up_xp_increment', 'player_max_hp', 'spawn_intensity_curve', 'spawn_rate']"
+    },
+    {
+      "text": "Plan does NOT claim /bal-converge was executed (single-pass guarantee)",
+      "passed": true,
+      "evidence": "no execution claim detected"
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 0,
+    "total": 8,
+    "pass_rate": 1.0
+  }
+}

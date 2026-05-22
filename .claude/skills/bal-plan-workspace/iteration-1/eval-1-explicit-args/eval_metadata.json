@@ -1,0 +1,15 @@
+{
+  "eval_id": 1,
+  "eval_name": "explicit-args",
+  "prompt": "/bal-plan mode=smoke kpi=\"Dur>=120\"",
+  "assertions": [
+    {"text": "plan.md file exists and is non-trivial (>500 chars)"},
+    {"text": "summary.md file exists"},
+    {"text": "Plan KPI section uses Dur>=120 (the user-provided KPI, not config default)"},
+    {"text": "Plan budget section reflects smoke mode: N<=2 AND max_iter=1"},
+    {"text": "Recommended command contains kpi=\"Dur>=120\""},
+    {"text": "Recommended command contains N=2 AND max_iter=1"},
+    {"text": "Plan acknowledges that smoke mode is pipeline-validation only (signals not expected)"},
+    {"text": "Plan does NOT claim /bal-converge was executed"}
+  ]
+}

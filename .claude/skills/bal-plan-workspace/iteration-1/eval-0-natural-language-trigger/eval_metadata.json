@@ -1,0 +1,15 @@
+{
+  "eval_id": 0,
+  "eval_name": "natural-language-trigger",
+  "prompt": "bal-converge 본격적으로 돌리기 전에 방향성 한번 잡아줘. 지난번 max_iter로 끝났었는데 이번엔 KPI랑 만질 knob을 좀 정리하고 들어가고 싶음.",
+  "assertions": [
+    {"text": "plan.md file exists and is non-trivial (>500 chars)"},
+    {"text": "summary.md file exists"},
+    {"text": "Plan contains a recommended /bal-converge command on a copy-pasteable line"},
+    {"text": "Recommended command includes a kpi= argument"},
+    {"text": "Plan references the prior converge report history (mentions max_iter or a prior report timestamp/reason)"},
+    {"text": "Plan surfaces at least one memory trap (enemy_damage int round-trip OR Ghost burst spawn / structural cutoff)"},
+    {"text": "Knob whitelist section references actual knob ids from .claude/bal-apply.json (e.g. enemy_damage, spawn_rate, level_up_xp_increment) — not invented names"},
+    {"text": "Plan does NOT claim /bal-converge was executed (single-pass guarantee)"}
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "expectations": [
+    {
+      "text": "plan.md file exists and is non-trivial (>500 chars)",
+      "passed": true,
+      "evidence": "plan.md = 3400 chars"
+    },
+    {
+      "text": "summary.md file exists",
+      "passed": true,
+      "evidence": "summary.md = 1536 chars"
+    },
+    {
+      "text": "Summary documents defaults taken for all 4 Q&A questions (KPI, Baseline, Knob whitelist, Budget)",
+      "passed": true,
+      "evidence": "Q&A markers in summary: 4"
+    },
+    {
+      "text": "Plan has all 6 sections per SKILL.md template: Context, Direction, Hypothesis priority (or noted as skipped), Traps, Recommended command, Post-run checklist",
+      "passed": true,
+      "evidence": "5/5 core sections found"
+    },
+    {
+      "text": "Recommended command is a single copy-pasteable /bal-converge line with no placeholders or pseudocode",
+      "passed": true,
+      "evidence": "/bal-converge kpi=\"Dur 180~240 AND Lvl>=5\" N=5 max_iter=3"
+    },
+    {
+      "text": "Plan references actual knob ids from .claude/bal-apply.json (not invented)",
+      "passed": true,
+      "evidence": "real knob ids found (6): ['enemy_damage', 'enemy_hp', 'level_up_xp_increment', 'player_max_hp', 'spawn_intensity_curve', 'spawn_rate']"
+    },
+    {
+      "text": "Recommended command uses only bal-converge-supported args (kpi, N, max_iter, timeout, max_wall) — no fake args like baseline= or whitelist=",
+      "passed": true,
+      "evidence": "args used: ['N', 'kpi', 'max_iter']"
+    },
+    {
+      "text": "Plan does NOT claim /bal-converge was executed",
+      "passed": true,
+      "evidence": "no execution claim detected"
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 0,
+    "total": 8,
+    "pass_rate": 1.0
+  }
+}
