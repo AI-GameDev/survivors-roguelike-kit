@@ -1,0 +1,99 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>bal-converge report — 2026-05-22T20:10:12 (USER_ABORT_PRE_CYCLE)</title><style>
+:root {
+  --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b;
+  --border: #e2e8f0; --accent: #2563eb; --success: #10b981;
+  --warning: #f59e0b; --danger: #ef4444;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14px; line-height: 1.55; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 32px 24px 80px; }
+header.top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+header.top h1 { font-size: 18px; margin: 0; font-weight: 600; }
+header.top .meta { font-family: var(--mono); color: var(--muted); font-size: 12px; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: 0.02em; }
+.badge.pass { background: #dcfce7; color: #065f46; }
+.badge.fail { background: #fee2e2; color: #991b1b; }
+.badge.warn { background: #fef3c7; color: #92400e; }
+section { margin: 32px 0; }
+h2 { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 0 0 12px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; }
+.summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.summary-grid .card .k { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.summary-grid .card .v { font-size: 22px; font-weight: 600; margin-top: 4px; font-family: var(--mono); }
+.summary-grid .card .v.green { color: var(--success); }
+.summary-grid .card .v.red { color: var(--danger); }
+.summary-grid .card .v.amber { color: var(--warning); }
+.summary-grid .card .sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.kpi-row { display: grid; grid-template-columns: 160px 1fr 120px; gap: 16px; align-items: center; padding: 12px 0; border-top: 1px solid var(--border); }
+.kpi-row:first-of-type { border-top: 0; }
+.kpi-row .name { font-weight: 600; }
+.kpi-row .name .desc { display: block; font-weight: 400; font-size: 11px; color: var(--muted); margin-top: 2px; }
+.kpi-row .val { text-align: right; font-family: var(--mono); }
+.kpi-row .val .num { font-size: 16px; font-weight: 600; }
+.kpi-row .val .pass-tag { font-size: 11px; }
+svg.gauge { display: block; width: 100%; height: 50px; }
+svg.gauge .track { fill: #f1f5f9; }
+svg.gauge .target { fill: #d1fae5; }
+svg.gauge .marker { fill: var(--text); }
+svg.gauge .label-axis { font-family: var(--mono); font-size: 9px; fill: var(--muted); }
+.chart-card { padding: 20px 24px 8px; }
+svg.trend { display: block; width: 100%; height: 280px; }
+svg.trend .axis line { stroke: var(--border); stroke-width: 1; }
+svg.trend .axis text { font-family: var(--mono); font-size: 10px; fill: var(--muted); }
+svg.trend .gridline { stroke: #f1f5f9; stroke-width: 1; }
+svg.trend .line-dist { stroke: var(--accent); stroke-width: 2; fill: none; }
+svg.trend .dot { fill: var(--accent); cursor: default; }
+svg.trend .dot:hover { fill: var(--text); }
+svg.trend .area-dist { fill: var(--accent); opacity: 0.08; }
+svg.trend .label-pt { font-family: var(--mono); font-size: 10px; fill: var(--muted); text-anchor: middle; }
+svg.trend .threshold { stroke: var(--success); stroke-dasharray: 4 3; stroke-width: 1; }
+svg.trend .threshold-label { font-family: var(--mono); font-size: 9px; fill: var(--success); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+table th, table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+table th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); font-weight: 600; background: #f8fafc; }
+table td.num, table th.num { text-align: right; font-family: var(--mono); }
+table tr:hover td { background: #f8fafc; }
+.pill { display: inline-block; padding: 1px 7px; border-radius: 3px; font-size: 11px; font-family: var(--mono); }
+.pill.pass { background: #dcfce7; color: #065f46; }
+.pill.fail { background: #fee2e2; color: #991b1b; }
+.knob-block { margin: 12px 0; padding: 12px 16px; background: #f8fafc; border-left: 3px solid var(--accent); border-radius: 4px; }
+.knob-block .head { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.knob-block .change { font-family: var(--mono); font-size: 13px; }
+.knob-block .change .knob-name { font-weight: 600; color: var(--text); }
+.knob-block .change .arrow { color: var(--muted); }
+.knob-block .change .from { color: var(--danger); }
+.knob-block .change .to { color: var(--success); }
+.knob-block .why { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.nbox { padding: 18px 22px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border); }
+.nbox h3 { margin: 0 0 10px; font-size: 14px; font-weight: 600; }
+.nbox p, .nbox li { font-size: 13px; line-height: 1.65; }
+.nbox ul { margin: 6px 0 10px; padding-left: 20px; }
+.src-tag { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; padding: 2px 7px; border-radius: 3px; text-transform: uppercase; margin-bottom: 10px; }
+.src-tag.chat { background: #ede9fe; color: #5b21b6; }
+.src-tag.data { background: #dbeafe; color: #1e40af; }
+.src-tag.mix  { background: #fef3c7; color: #92400e; }
+.nbox.chat { background: #faf5ff; }
+.nbox.data { background: #eff6ff; }
+.nbox.mix  { background: #fffbeb; }
+.impact-list { margin: 8px 0 4px; }
+.impact-row { display: grid; grid-template-columns: 24px 1fr 90px 60px; gap: 10px; align-items: center; padding: 6px 0; font-size: 12px; }
+.impact-row .rank { font-family: var(--mono); color: var(--muted); text-align: center; }
+.impact-row .name { font-family: var(--mono); }
+.impact-row .bar-wrap { background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; }
+.impact-row .bar { background: var(--accent); height: 100%; }
+.impact-row .val { font-family: var(--mono); text-align: right; font-size: 11px; color: var(--muted); }
+.delta-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 10px 0; }
+.delta-card { background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; }
+.delta-card .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.delta-card .ba { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; font-family: var(--mono); }
+.delta-card .before { color: var(--danger); font-size: 13px; }
+.delta-card .arrow { color: var(--muted); }
+.delta-card .after { color: var(--success); font-size: 18px; font-weight: 600; }
+.delta-card .delta-pct { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.empty { padding: 20px; text-align: center; color: var(--muted); font-size: 12px; font-style: italic; }
+footer.links { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+footer.links a { color: var(--accent); text-decoration: none; }
+footer.links a:hover { text-decoration: underline; }
+footer.links code { font-family: var(--mono); background: #f1f5f9; padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+</style></head><body><div class="wrap"><header class="top"><div><h1>bal-converge — survivors-roguelike-kit · SurvivorFighterAgent_v17_best</h1><div class="meta">2026-05-22T20:10:12 · branch <code>balance/v17-tuning</code> · KPI <code>Dur &gt;= 90</code></div></div><div><span class="badge warn">USER_ABORT_PRE_CYCLE · iter 0</span></div></header><section><h2>요약</h2><div class="summary-grid"><div class="card"><div class="k">결과</div><div class="v amber">USER_ABORT_PRE_CYCLE</div><div class="sub"></div></div><div class="card"><div class="k">사이클</div><div class="v">0 / 2</div><div class="sub">max_iter=2</div></div><div class="card"><div class="k">소요 시간</div><div class="v">5m50s</div><div class="sub">max_wall=30m</div></div><div class="card"><div class="k">변경 knob</div><div class="v">0</div><div class="sub">자산 0개 수정</div></div></div></section><section><h2>KPI 현황 (최종 사이클)</h2><div class="card"><div class="kpi-row"><div class="name">평균 생존시간(초)<span class="desc">한 판이 끝날 때까지 걸린 시간의 평균</span></div><div><svg class="gauge" viewBox="0 0 400 50" preserveAspectRatio="none"><rect class="track" x="20" y="22" width="360" height="14" rx="3"/><rect class="target" x="200.0" y="22" width="180.0" height="14" rx="3"/><line class="marker" x1="135.1" y1="16" x2="135.1" y2="42" stroke="currentColor" stroke-width="2"/><circle class="marker" cx="135.1" cy="29" r="4"/><text class="label-axis" x="20.0" y="48" text-anchor="start">0</text><text class="label-axis" x="200.0" y="48" text-anchor="middle">90</text><text class="label-axis" x="380.0" y="48" text-anchor="end">180.0</text></svg></div><div class="val"><div class="num">57.57</div><div class="pass-tag"><span class="pill fail">FAIL</span></div></div></div></div></section><section><h2>사이클 상세</h2><div class="card" style="padding:0;overflow:hidden;"><table><thead><tr><th>iter</th><th>session</th><th class="num">평균 생존시간(초)</th><th class="num">평균 최종 레벨</th><th class="num">평균 처치 수</th><th class="num">평균 받은 피해</th><th class="num">평균 최종 경험치</th><th class="num">평균 적과의 거리</th><th class="num">distance</th><th class="num">knobs</th><th>결과</th></tr></thead><tbody><tr><td>0 (baseline)</td><td><code>20260522_016</code></td><td class="num">57.57</td><td class="num">2.80</td><td class="num">23.40</td><td class="num">40.40</td><td class="num">73.20</td><td class="num">3.87</td><td class="num">0.36</td><td class="num">—</td><td><span class="pill fail">FAIL</span></td></tr></tbody></table></div></section><section><h2>해석 / 메모</h2><div class="nbox chat"><span class="src-tag chat">💬 이번 세션 대화 요약</span><h3>왜 이 KPI 였나</h3><p>사용자가 보수 KPI Dur &gt;= 90 으로 선택. baseline ~62s 대비 90s 도달만 해도 burst 축소 효과 검증으로 충분하다는 합의. /bal-plan 의 권장 명령 그대로 실행.</p><h3>사전 가설</h3><ul><li>Ghost.asset Pattern=Dense Count=30 의 60s burst 가 structural cutoff 의 메커니즘</li><li>spawn_burst_count knob (신규 추가) 으로 Count 30→15 하면 burst 축소 → Dur 증가</li></ul><h3>사용자가 표명한 우려</h3><ul><li>spawn_rate (BaseRatePerSecond) 는 Random 패턴 한정이라 Ghost(Dense) 에 무효였던 점은 이전 cycle 들에서 확인됨</li><li>정수 round-trip 흡수 (enemy_damage 작은 정수에 ±15% → no-op) 메모리 트랩</li></ul><p style="font-size:11px;color:var(--muted);margin-top:12px;">※ 이 박스는 Claude가 종료 시점에 대화 로그를 요약한 재구성입니다. 정확한 사용자 발언은 대화 원문을 참조하세요.</p></div><div class="nbox data"><span class="src-tag data">📊 데이터 기반 자동 분석</span><h3>1) 시작 상태 (baseline)</h3><p>5 plays 중 play 4 가 38s 에 단명, 나머지 4 plays 는 62±1s 의 익숙한 60s cutoff 패턴. 평균 57.57s, stddev 10.61s, σ/μ=18.4%. play 4 가 outlier 로 작용해 통계가 흩어졌다.</p><p style="font-size:12px;margin-top:8px;"><strong>핵심 관찰:</strong> diagnostic 6개 중 structural_duration_cutoff 만 spawn_burst_count knob 의 trigger. 그런데 σ/μ=18.4% &gt; 임계값 10% 라서 이 diagnostic 이 발화하지 않음. 따라서 이번 cycle 의 핵심 가설 (spawn_burst_count 로 Ghost Count 30→15 적용) 검증 자체가 시작도 못 함. 대신 killer_concentration (Gear 60%), level_cap_low (lvl 2.8), high_damage_taken_variance (σ/μ=0.89) 가 발화 → 기존 stat knob (enemy_damage Gear, level_up_xp_increment, player_max_hp) 만 매칭됨. cycle 1 과 동일한 구성.</p><h3>4) 진행 신호</h3><ul><li>play 4 단명 (38s, lvl 1) 가 1/5 표본에서 σ 를 크게 키움. N 을 늘려 outlier 영향 희석하면 σ/μ 가 임계값 아래로 내려갈 가능성.</li><li>enemy_damage Gear: Int 3 → 3 (정수 round-trip 흡수) — 메모리 트랩이 실시간 재확인됨.</li><li>사망 원인 (Killer) 분포: Gear 60% / Slime 40%. NearEnemy (사망 시 가까운 적) 는 Gear 80% / Ghost 20%. 데이터상 Ghost 는 사망의 직접 원인은 아니나 60s burst 후 환경 압박은 명확.</li></ul></div><div class="nbox mix"><span class="src-tag mix">🎯 결론 + 후속 가설 (대화 + 데이터)</span><h3>이번 사이클이 입증한 것</h3><ul><li>정수 round-trip 흡수 트랩 재확인 (Gear Attack 3 → 3 no-op)</li><li>5 plays 표본은 σ/μ 임계값을 안정적으로 통과시키기에 부족. 단 1번의 outlier 가 진단을 마비시킴.</li></ul><h3>다음 세션 후속 가설</h3><ul><li>다음 cycle 직전 /bal-run N=10 또는 N=15 로 baseline 재측정 → σ/μ &lt; 10% 확보. 그 후 spawn_burst_count 자동 발화 기대.</li><li>또는 .claude/bal-apply.json 의 duration_stddev_ratio_max 임계값을 0.10 → 0.15~0.20 으로 완화 (장기 트레이드오프: false positive 가능성).</li><li>최후 수단: spawn_burst_count 파이프라인 우회하여 unity-cli 로 Ghost.asset Count 직접 편집 후 /bal-run 비교 측정 (가설만 신속 검증, converge 사이클은 별건).</li></ul></div></section><footer class="links"><div><strong>관련 자료</strong></div><div>· 사이클별 raw 데이터: <code>20260522_016</code></div><div>· git diff: — (0 files)</div><div style="margin-top:12px;font-size:11px;">이 리포트는 단일 HTML 파일로 외부 의존성 0개 (CDN/JS lib 없음). 인라인 SVG + CSS만 사용. 5년 뒤에도, 오프라인에서도 그대로 열림.</div></footer></div></body></html>
