@@ -85,3 +85,14 @@ Assets/ML-Models/*.onnx
 # Claude Code local state
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
+
+# Unity crash / recovery noise
+mono_crash.*
+/[Aa]ssets/_Recovery/
+/[Aa]ssets/_Recovery.meta
+
+# ML-Agents timer auto-output
+/[Aa]ssets/ML-Agents/Timers/*.json
+
+# Local research / scratch notes
+/ref/
