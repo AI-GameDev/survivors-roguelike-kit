@@ -1,0 +1,26 @@
+{
+  "skill_name": "bal-plan",
+  "evals": [
+    {
+      "id": 0,
+      "name": "natural-language-trigger",
+      "prompt": "bal-converge 본격적으로 돌리기 전에 방향성 한번 잡아줘. 지난번 max_iter로 끝났었는데 이번엔 KPI랑 만질 knob을 좀 정리하고 들어가고 싶음.",
+      "expected_output": "playbalance/plans/plan_<ts>.md 파일이 생성되고, 사용자에게 추천 /bal-converge 명령 한 줄이 출력됨. 이전 max_iter 리포트와 메모리 함정(enemy_damage 정수 round-trip, Ghost burst spawn)이 plan 본문에 반영됨.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "explicit-args",
+      "prompt": "/bal-plan mode=smoke kpi=\"Dur>=120\"",
+      "expected_output": "mode=smoke + kpi 미리 채워졌으니 Q&A 최소화. plan 파일에 smoke (N=2, max_iter=1) 예산 명시 + 추천 명령은 /bal-converge kpi=\"Dur>=120\" N=2 max_iter=1.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "bare-invocation",
+      "prompt": "/bal-plan",
+      "expected_output": "모든 Q&A 항목 (KPI, Baseline, Whitelist, 예산) 사용자에게 묻고, 응답 받은 뒤 plan 작성. 이전 리포트 인벤토리 + baseline 후보 + trap 경고 섹션 모두 포함.",
+      "files": []
+    }
+  ]
+}

@@ -90,32 +90,101 @@ mlagents-learn configs/survivor_fighter.yaml \
 
 ## 결과 (학습 후 누적)
 
-### 선행 검증 (v17)
+### 선행 검증 (v17_best, inference, 2 sessions)
 
-| 그룹 | n | mean(cos) | median(cos) | mean(dist) |
-|---|---|---|---|---|
-| 안전 (enemy=0) | — | — | — | — |
-| 중간 (1~2) | — | — | — | — |
-| 위험 (≥3) | — | — | — | — |
+`agent.xp_in_range` (12m 안 XP gem 존재 여부, 1초/0.25초 폴링):
 
-판정: TBD
+| session | total | ones (in_range=1) | 비율 |
+|---|---|---|---|
+| 20260528_001 (1초 폴링, 92s) | 92 (cos 0건) | 0 | **0%** |
+| 20260528_002 (0.25초 폴링, 183s) | 766 | 0 | **0%** |
 
-### Smoke ablation (100k step)
+**Sanity check (Unity reflection)**:
+- player 주변 12m 안 active Exp gem 3개 (3.7m / 5.3m / 10m) 존재 확인됨
+- 하지만 `Physics2D.OverlapCircleAll(pos, 12f)` 결과에 안 잡힘
+- **원인 확정**: Exp40_Pooled prefab 에 Collider2D 가 0개 (self + child 모두). `Physics2D.OverlapCircleAll` 로는 영원히 0건 반환
+- → `SurvivorFighterAgent.CollectObservations` 의 XP 6 floats 가 학습 내내 패딩값 `(1,0,0,1,0,0)`
 
-| run | XP shaping scale | MOVEMENT_BONUS | dur mean | level mean | XP align cos mean | 비고 |
-|---|---|---|---|---|---|---|
-| — | — | — | — | — | — | — |
+**판정**: "XP 무관심" 은 RL 학습 실패가 아니라 **observation 정보 결손**. v17 의 XP 픽업은 적 쫓다 1.5m magnet range 우연히 진입한 random walk 결과.
 
-### v18 본 학습 (1.5M step)
+→ 가설 1번 (sparse pickup signal) / 2번 (obs range 한계) / 3번 (MOVEMENT_BONUS noise) 모두 *검증 불가* — XP signal 자체가 0이었으니까.
 
-| step | mean reward | dur mean | level mean | XP align cos (안전) | 비고 |
-|---|---|---|---|---|---|
-| — | — | — | — | — | — |
+### v18 smoke 1차 (200k step, obs fix 단독)
+
+**학습 진행 표 (5000 step summary)**:
+
+| step | mean reward | std | step/sec |
+|---|---|---|---|
+| 50k | -4.617 | 1.49 | 56 |
+| 100k | -3.432 | 1.01 | 34 |
+| 135k | -2.475 (peak1) | 0.84 | 25 |
+| 160k | -0.890 (peak2) | — | 22 |
+| 180k | -1.406 | — | 21 |
+| 200k | **-0.121** (final, all-time best) | — | 18 |
+
+학습 곡선 패턴: peak -5 ~ -2.5 진동 + 마지막 50k 에서 -1 ~ -0.1 수렴.
+
+**Inference 측정 (v18_smoke onnx, 4 episodes, ~26초/ep)**:
+
+| 지표 | v17 baseline | v18_smoke 200k |
+|---|---|---|
+| `xp_in_range` 비율 | **0%** (0/766) | **66.4%** (267/402) |
+| `nearest_xp_distance` mean | (관측 불가) | **6.22m**, median 5.74m |
+| `xp_align_cos` mean | — | -0.005 (≈ random walk) |
+| cos positive% (전체) | — | 49.2% |
+| cos by safe (0 적) | — | -0.033, pos%=46% |
+| cos by mid (2 적) | — | -0.502, pos%=14% |
+| cos by danger (≥3 적) | — | **+0.032**, pos%=52.8% |
+| episode dur mean | ~83~180s | **26s** (24~30s) |
+| final_level mean | 5+ 일반 | **1.25** (1,1,1,2) |
+| total_kills mean | 다수 | 3.25 |
+| episode causes | mixed | **death × 4 (전부)** |
+
+**해석**:
+- ✅ obs fix 압도적 효과 (in_range 0 → 66.4%, gem 평균 거리 6.22m)
+- ⚠️ cos ≈ 0 = XP 방향 *적극 추종 안 함* (mean reward -0.12 까지 학습됐는데 XP 방향성은 random walk)
+- ❌ episode dur 26초 (v17 의 ~1/4) — XP obs 받았지만 행동에 연결 못함, 또는 새 관측 분포가 v17 회피 학습 패턴 흔들어 사망률 상승
+
+### 학습 속도 둔화 발견 (사용자 관찰 + 데이터 검증)
+
+`FindObjectsByType<Exp>` 도입 후 학습 속도 단조 감소:
+
+| step | step/sec |
+|---|---|
+| 10k | 132 (baseline) |
+| 50k | 56 (×0.42) |
+| 100k | 34 (×0.26) |
+| 150k | 22 (×0.17) |
+| 200k | **18** (×0.14 — 7배 둔화) |
+
+**v17 학습 평균: ~140 step/sec → v18 학습 평균: ~32 step/sec (4~5배 느림)**.
+
+원인 후보 (우선순위):
+1. `FindObjectsByType<Exp>` Unity 전역 GameObject traverse 비용 (active+inactive pool)
+2. 학습 후반 episode 길이 증가 → 한 episode 안 active object 누적 → 그 episode 후반 step 더 느림
+3. **단**: `_decisionPeriod = 5` 라 agent `CollectObservations` 는 이미 48Hz. 캐시 효과 제한적일 수 있음 — 실제 병목은 `ApplyProximityShaping`의 매-step (240Hz) enemy query 일 가능성
+
+### 다음 단계 결정 (Codex cross-check 동의)
+
+200k mean reward 학습됐는데 `cos ≈ 0` 이라는 사실은 "obs fix 만으론 XP-seeking 신호 약함" 을 시사 — *학습 부족 단독* 가설보다 강함.
+
+**Plan**:
+1. Agent obs FindObjectsByType + (선택) ApplyProximityShaping 의 enemy query — n-step (5) 캐시 + null/disabled 필터
+2. 600k smoke 추가 학습 (캐시 적용)
+3. 학습 중 10k/25k/50k/100k 시점 step/sec 추세 추적 — 후반 둔화 완화 여부 평가
+4. 학습 후 inference 10~20 episode 측정
+5. 판정 (Codex 권고):
+   - cos / xp_in_range / pickup rate / final_level / episode dur 다섯 지표 함께
+   - **(a)** 다섯 지표 다 향상 → v18 1.5M 본 학습 진행
+   - **(b)** cos 좋지만 dur 짧으면 → "gem 만 쫓아 자살" 정책 → v19 (회피 시 같이 보강)
+   - **(c)** 거의 다 정체 → v19 (potential-based shaping 추가)
 
 ## 변경 사유 (smoke 결과로 설계 바꾼 경우)
 
-(없음)
+- **2026-05-28**: 선행 검증에서 *observation 결손 버그* 발견 → reward shaping 가설 검증 미루고 obs fix 단독 (V18a) 로 전환. Codex/사용자 동의.
+- **2026-05-28**: 200k smoke 결과 `mean reward -0.12 학습됐는데 cos ≈ 0` → "obs fix 만으론 XP-seeking 신호 약함" 가설 강화. 1.5M 직진 대신 *캐시 + 600k 추가 smoke* 로 결정 데이터 더 모으기.
+- **2026-05-28**: 학습 속도 단조 둔화 (132 → 18 step/sec) 발견 → FindObjectsByType 캐시 + ApplyProximityShaping 캐시 검토.
 
 ## 결론
 
-(학습 완료 후)
+(600k smoke + 측정 + 판정 완료 후 갱신)

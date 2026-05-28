@@ -1,0 +1,15 @@
+{
+  "eval_id": 2,
+  "eval_name": "bare-invocation",
+  "prompt": "/bal-plan",
+  "assertions": [
+    {"text": "plan.md file exists and is non-trivial (>500 chars)"},
+    {"text": "summary.md file exists"},
+    {"text": "Summary documents defaults taken for all 4 Q&A questions (KPI, Baseline, Knob whitelist, Budget)"},
+    {"text": "Plan has all 6 sections per SKILL.md template: Context, Direction, Hypothesis priority (or noted as skipped), Traps, Recommended command, Post-run checklist"},
+    {"text": "Recommended command is a single copy-pasteable /bal-converge line with no placeholders or pseudocode"},
+    {"text": "Plan references actual knob ids from .claude/bal-apply.json (not invented)"},
+    {"text": "Recommended command uses only bal-converge-supported args (kpi, N, max_iter, timeout, max_wall) — no fake args like baseline= or whitelist="},
+    {"text": "Plan does NOT claim /bal-converge was executed"}
+  ]
+}

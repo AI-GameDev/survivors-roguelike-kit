@@ -1,0 +1,50 @@
+{
+  "expectations": [
+    {
+      "text": "plan.md file exists and is non-trivial (>500 chars)",
+      "passed": true,
+      "evidence": "plan.md = 3721 chars"
+    },
+    {
+      "text": "summary.md file exists",
+      "passed": true,
+      "evidence": "summary.md = 1119 chars"
+    },
+    {
+      "text": "Plan KPI section uses Dur>=120 (the user-provided KPI, not config default)",
+      "passed": true,
+      "evidence": "Dur>=120 present"
+    },
+    {
+      "text": "Plan budget section reflects smoke mode: N<=2 AND max_iter=1",
+      "passed": true,
+      "evidence": "command: N=2 max_iter=1"
+    },
+    {
+      "text": "Recommended command contains kpi=\"Dur>=120\"",
+      "passed": true,
+      "evidence": "found"
+    },
+    {
+      "text": "Recommended command contains N=2 AND max_iter=1",
+      "passed": true,
+      "evidence": "/bal-converge mode=smoke kpi=\"Dur>=120\" N=2 max_iter=1 per_play_timeout=180 \\"
+    },
+    {
+      "text": "Plan acknowledges that smoke mode is pipeline-validation only (signals not expected)",
+      "passed": false,
+      "evidence": "no smoke caveat"
+    },
+    {
+      "text": "Plan does NOT claim /bal-converge was executed",
+      "passed": true,
+      "evidence": "no execution claim detected"
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 1,
+    "total": 8,
+    "pass_rate": 0.875
+  }
+}
