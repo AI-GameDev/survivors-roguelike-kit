@@ -77,6 +77,13 @@ namespace RGame.MLAgents
         private float _lastDiagLogTime;
         private bool _clearedTimeout;
 
+        // v18: FindObjectsByType<Exp> 캐시 — 매 CollectObservations 호출 (이미 decisionPeriod=5 라 48Hz)
+        // 마다 새로 호출하면 학습 후반 pool 누적 시 부담 큼. 5 decision 마다 1번 갱신해 ~9.6Hz 로 낮춤.
+        // gem 거리 변화는 100ms 안 큰 변동 없음 (player ~10m/s × 0.1s = 1m) — 학습 신호 영향 미미.
+        private const int GEM_CACHE_INTERVAL = 5;
+        private Exp[] _cachedGems = System.Array.Empty<Exp>();
+        private int _gemCacheTick;
+
         public void Inject(
             CommonStatRuntimeSO stats,
             EnemySystem enemySystem,
@@ -212,16 +219,22 @@ namespace RGame.MLAgents
             // Top 2 XP gem (each: dist, dirX, dirY = 6 obs).
             // v18 fix: Exp gem 에 Collider2D 가 없어 Physics2D.OverlapCircleAll 로는 안 잡혔음 (v17 obs 결손).
             // FindObjectsByType<Exp>(FindObjectsSortMode.None) — active GameObject 만 반환 (pooled inactive 자동 제외).
-            var gems = Object.FindObjectsByType<Exp>(FindObjectsSortMode.None);
+            // v18 cache: 5 decision interval (~9.6Hz). 사용 시 null/disabled 필터링 필수 (cache 유효기간 안에 pickup 가능).
+            if (--_gemCacheTick <= 0)
+            {
+                _cachedGems = Object.FindObjectsByType<Exp>(FindObjectsSortMode.None);
+                _gemCacheTick = GEM_CACHE_INTERVAL;
+            }
             float[] bestDistSq = new float[TOP_XP_COUNT];
             Vector2[] bestDir = new Vector2[TOP_XP_COUNT];
             int found = 0;
             for (int k = 0; k < TOP_XP_COUNT; k++) bestDistSq[k] = float.MaxValue;
             float xpRangeSq = XP_OBS_RANGE * XP_OBS_RANGE;
-            for (int i = 0; i < gems.Length; i++)
+            for (int i = 0; i < _cachedGems.Length; i++)
             {
-                var g = gems[i];
-                if (g == null) continue;
+                var g = _cachedGems[i];
+                // null + disabled 필터: cache 5 decision 동안 pickup 됐을 수 있음.
+                if (g == null || !g.gameObject.activeInHierarchy) continue;
                 Vector2 diff = (Vector2)(g.transform.position - playerPos);
                 float dsq = diff.sqrMagnitude;
                 if (dsq > xpRangeSq) continue;
