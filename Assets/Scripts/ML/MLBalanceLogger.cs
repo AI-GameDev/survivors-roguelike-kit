@@ -251,17 +251,18 @@ namespace RGame.MLAgents
             Vector3 pos = _playerTransform.position;
             Vector2 vel = _playerRb.linearVelocity;
 
-            // nearest XP/Drop gem 탐색 (SurvivorFighterAgent와 동일 범위/태그)
-            Collider2D[] hits = Physics2D.OverlapCircleAll(pos, XP_ALIGN_OBS_RANGE);
+            // nearest XP gem 탐색 (SurvivorFighterAgent 와 동일 fix: FindObjectsByType — active 만, pooled inactive 제외)
+            var gems = Object.FindObjectsByType<Exp>(FindObjectsSortMode.None);
             float bestDistSq = float.MaxValue;
             Vector2 bestDir = Vector2.zero;
-            for (int i = 0; i < hits.Length; i++)
+            float xpRangeSq = XP_ALIGN_OBS_RANGE * XP_ALIGN_OBS_RANGE;
+            for (int i = 0; i < gems.Length; i++)
             {
-                var h = hits[i];
-                if (h == null) continue;
-                if (!h.CompareTag("Exp") && !h.CompareTag("DropOut")) continue;
-                Vector2 diff = (Vector2)(h.transform.position - pos);
+                var g = gems[i];
+                if (g == null) continue;
+                Vector2 diff = (Vector2)(g.transform.position - pos);
                 float dsq = diff.sqrMagnitude;
+                if (dsq > xpRangeSq) continue;
                 if (dsq < bestDistSq) { bestDistSq = dsq; bestDir = diff; }
             }
 

@@ -209,20 +209,22 @@ namespace RGame.MLAgents
                 }
             }
 
-            // Top 2 XP/Drop (each: dist, dirX, dirY = 6 obs). Physics2D로 검색 후 거리 정렬.
-            Collider2D[] hits = Physics2D.OverlapCircleAll(playerPos, XP_OBS_RANGE);
-            // 간단 정렬: 거리 작은 순으로 TOP_XP_COUNT개만 추출 (selection)
+            // Top 2 XP gem (each: dist, dirX, dirY = 6 obs).
+            // v18 fix: Exp gem 에 Collider2D 가 없어 Physics2D.OverlapCircleAll 로는 안 잡혔음 (v17 obs 결손).
+            // FindObjectsByType<Exp>(FindObjectsSortMode.None) — active GameObject 만 반환 (pooled inactive 자동 제외).
+            var gems = Object.FindObjectsByType<Exp>(FindObjectsSortMode.None);
             float[] bestDistSq = new float[TOP_XP_COUNT];
             Vector2[] bestDir = new Vector2[TOP_XP_COUNT];
             int found = 0;
             for (int k = 0; k < TOP_XP_COUNT; k++) bestDistSq[k] = float.MaxValue;
-            for (int i = 0; i < hits.Length; i++)
+            float xpRangeSq = XP_OBS_RANGE * XP_OBS_RANGE;
+            for (int i = 0; i < gems.Length; i++)
             {
-                var h = hits[i];
-                if (h == null) continue;
-                if (!h.CompareTag("Exp") && !h.CompareTag("DropOut")) continue;
-                Vector2 diff = (Vector2)(h.transform.position - playerPos);
+                var g = gems[i];
+                if (g == null) continue;
+                Vector2 diff = (Vector2)(g.transform.position - playerPos);
                 float dsq = diff.sqrMagnitude;
+                if (dsq > xpRangeSq) continue;
                 // insertion into top-K
                 for (int k = 0; k < TOP_XP_COUNT; k++)
                 {
