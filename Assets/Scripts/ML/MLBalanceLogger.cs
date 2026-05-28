@@ -52,7 +52,14 @@ namespace RGame.MLAgents
 
         // 게임 객체 참조 (사망 컨텍스트 폴링용)
         private Transform _playerTransform;
+        private Rigidbody2D _playerRb;
         private EnemySystem _enemySystem;
+
+        // v18 검증용: XP-방향 상관관계 폴링 (1초 주기)
+        private const float XP_ALIGN_OBS_RANGE = 12f;
+        private const float XP_ALIGN_PROXIMITY_RANGE = 5f;
+        private const float XP_ALIGN_VELOCITY_EPS = 0.1f;
+        private float _lastXpAlignPollTime;
 
         public void Init(
             CommonStatRuntimeSO stats,
@@ -79,7 +86,11 @@ namespace RGame.MLAgents
             Debug.Log("[MLLogger] init model=" + _modelName);
         }
 
-        public void SetPlayer(Transform playerTransform) { _playerTransform = playerTransform; }
+        public void SetPlayer(Transform playerTransform, Rigidbody2D playerRb)
+        {
+            _playerTransform = playerTransform;
+            _playerRb = playerRb;
+        }
 
         private void OnEnable()
         {
@@ -116,6 +127,7 @@ namespace RGame.MLAgents
             _recent5sDamageTaken = 0f;
             _recent5sStartTime = _episodeStartTime;
             _lastEnemyCountPollTime = _episodeStartTime;
+            _lastXpAlignPollTime = _episodeStartTime;
 
             Debug.Log("[MLLogger] BeginEpisode play_no=" + CurrentPlayNo);
         }
@@ -222,6 +234,61 @@ namespace RGame.MLAgents
                     SendLog(CurrentPlayNo, "stage.active_enemy_count", count);
                 }
             }
+
+            // v18 검증: XP-방향 vs 이동 방향 코사인 + 컨텍스트 (1초 주기)
+            if (now - _lastXpAlignPollTime >= 1f)
+            {
+                _lastXpAlignPollTime = now;
+                PollXpAlignment();
+            }
+        }
+
+        private void PollXpAlignment()
+        {
+            if (_playerTransform == null || _playerRb == null) return;
+
+            Vector2 vel = _playerRb.linearVelocity;
+            if (vel.sqrMagnitude < XP_ALIGN_VELOCITY_EPS * XP_ALIGN_VELOCITY_EPS) return;
+
+            Vector3 pos = _playerTransform.position;
+
+            // nearest XP/Drop gem 탐색 (SurvivorFighterAgent와 동일 범위/태그)
+            Collider2D[] hits = Physics2D.OverlapCircleAll(pos, XP_ALIGN_OBS_RANGE);
+            float bestDistSq = float.MaxValue;
+            Vector2 bestDir = Vector2.zero;
+            for (int i = 0; i < hits.Length; i++)
+            {
+                var h = hits[i];
+                if (h == null) continue;
+                if (!h.CompareTag("Exp") && !h.CompareTag("DropOut")) continue;
+                Vector2 diff = (Vector2)(h.transform.position - pos);
+                float dsq = diff.sqrMagnitude;
+                if (dsq < bestDistSq) { bestDistSq = dsq; bestDir = diff; }
+            }
+            if (bestDistSq >= float.MaxValue || bestDistSq < 1e-6f) return;
+
+            float dist = Mathf.Sqrt(bestDistSq);
+            Vector2 xpDir = bestDir / dist;
+            Vector2 moveDir = vel.normalized;
+            float cos = Vector2.Dot(xpDir, moveDir);
+
+            // 위험 컨텍스트: PROXIMITY_RANGE(5m) 안 적 수
+            int nearbyEnemies = 0;
+            if (_enemySystem != null)
+            {
+                var nearby = _enemySystem.GetNearestEnemies(pos, XP_ALIGN_OBS_RANGE, XP_ALIGN_OBS_RANGE);
+                for (int i = 0; i < nearby.Count; i++)
+                {
+                    if (nearby[i] == null) continue;
+                    float d = Vector3.Distance(pos, nearby[i].transform.position);
+                    if (d < XP_ALIGN_PROXIMITY_RANGE) nearbyEnemies++;
+                }
+            }
+
+            int playNo = CurrentPlayNo;
+            SendLog(playNo, "agent.xp_align_cos", cos);
+            SendLog(playNo, "agent.nearest_xp_distance", dist);
+            SendLog(playNo, "agent.nearby_enemy_count", nearbyEnemies);
         }
 
         // ============= ISink =============

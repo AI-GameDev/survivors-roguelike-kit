@@ -122,7 +122,7 @@ namespace RGame.MLAgents
 
             if (_balanceLogger != null)
             {
-                _balanceLogger.SetPlayer(rootTf);
+                _balanceLogger.SetPlayer(rootTf, rb);
                 _balanceLogger.BeginEpisode();
             }
 
