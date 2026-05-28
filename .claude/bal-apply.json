@@ -117,17 +117,17 @@
     {
       "id": "early_spawn_rate",
       "label": "Early-window spawn rate ease (0~90s)",
-      "triggers": ["bimodal_early_part", "overcrowded_at_death"],
+      "triggers": ["bimodal_early_part"],
       "asset_glob": "Assets/RGame/RoguelikeKit/ScriptableObjects/DataSO/Level/Stages/StageSet/**/*.asset",
       "asset_match": {
         "type": "value_config_named",
         "name_mode": "filename_list",
-        "names": ["Gear", "Gear 1"]
+        "names": ["Gear"]
       },
       "field_path": "BaseRatePerSecond",
       "adjust_default": -0.5,
       "adjust_range": [-0.7, 0.0],
-      "note": "Early-window (0~90s) Random pattern SpawnSet base rate down. names 는 StartTime<90s 인 Random 자산 stem (필요 시 사용자 직접 갱신)."
+      "note": "Early-window (0~90s) Random pattern SpawnSet base rate down. names 는 StartTime<90s 인 Random 자산 stem. 2026-05-23 03:30: Gear 1 제거 — 실제 StartTime=360 (late) 였음. 추가 early 후보 (Slime/Bat/Bat 1/FlySkull) 는 별건."
     },
     {
       "id": "late_spawn_burst_amplify",
@@ -140,9 +140,9 @@
         "names": ["Ghost 3", "Ghost 4", "Ghost 5", "Ghost 6", "BoyFairy1", "BoyFairy2"]
       },
       "field_path": "Count",
-      "adjust_default": 2.0,
+      "adjust_default": 1.0,
       "adjust_range": [0.0, 4.0],
-      "note": "Late-window (180~270s) Dense/Circle burst Count 3x. Integer 필드 — 큰 베이스 (15, 20) 라 round-trip 안정. bimodal 통과 모델에 사망 wall 형성 목적."
+      "note": "Late-window (180~270s) Dense/Circle burst Count 2x. Integer 필드 — 큰 베이스 (15, 20) 라 round-trip 안정. 2026-05-23 03:30: 3x→2x 로 완화 (모델이 Count=15 에 학습 → +200% 는 OOD, +100% 는 학습 환경 Count=30 직전 부근)."
     },
     {
       "id": "late_spawn_rate_amplify",
@@ -155,9 +155,9 @@
         "names": ["ForestGuardianFairy"]
       },
       "field_path": "BaseRatePerSecond",
-      "adjust_default": 5.0,
+      "adjust_default": 2.0,
       "adjust_range": [0.0, 10.0],
-      "note": "Late-window long-sustained Random pressure 6x (0.3 → 1.8). bimodal 깨기용 지속 압력."
+      "note": "Late-window long-sustained Random pressure 3x (0.3 → 0.9). bimodal 깨기용 지속 압력. 2026-05-23 03:30: 6x→3x 완화 (6x 는 over-OOD, 3x 도 충분히 지속 압력)."
     }
   ]
 }
