@@ -35,8 +35,8 @@ namespace RGame.MLAgents
         private const float HP_LOSS_REWARD_PER_POINT = -0.05f;   // -0.15 → -0.05: 피격 페널티 완화
         private const float XP_GAIN_REWARD_SCALE = 1.0f;
         private const float DEATH_REWARD = -3.0f;
-        private const float KILL_REWARD = 0.5f;                   // 0.15 → 0.5: 전투 인센티브 강화
-        private const float CLEAR_REWARD = 2.0f;
+        private const float KILL_REWARD = 0.15f;                  // v19: 0.5 → 0.15. kill farming("죽이다 죽기") 약화 — 생존 우선.
+        private const float CLEAR_REWARD = 5.0f;                  // v19: 2.0 → 5.0. 312s 완주 = 최종 목표 가치 ↑.
         // Threat penalty: -0.0001 × (enemyAtk / 5) × (1 - dist/8), capped at -0.002/step.
         private const float THREAT_BASE_PENALTY = -0.0001f;       // -0.0005 → -0.0001: 1/5로 완화
         private const float THREAT_PENALTY_CAP = -0.002f;         // 웨이브 폭증 시 스파이크 방지
@@ -44,11 +44,16 @@ namespace RGame.MLAgents
         private const float PROXIMITY_RANGE = 5f;              // 8 → 5: 즉시 위험 zone만
         private const float STOP_PENALTY = -0.001f;      // 정지 시 강력 페널티
         private const float STOP_SPEED_THRESHOLD = 0.2f;
-        private const float MOVEMENT_BONUS_MAX = 0.0008f; // input.magnitude=1.0 시 최대 보너스. 임계값 부근(0.2)이면 0.00016만.
+        private const float MOVEMENT_BONUS_MAX = 0.0002f; // v19: 0.0008 → 0.0002. 312s×240Hz×0.0008=최대 +60 누적 = 사실상 최대 reward 원천이라 "방향 무관 이동"이 최적전략이 됐던 진범. 1/4로 축소.
         private const float COMBAT_BONUS = 0.0005f;
         private const float COMBAT_ZONE_MIN = 3f;
         private const float COMBAT_ZONE_MAX = 10f;
         private const float DANGER_ZONE_MAX = 3f;
+        // v19: 누적 생존 시간 마일스톤. 각 임계 sim-time(초) 첫 통과 시 단발 보상 — 90s wall 통과를 직접 보상하는 dense 생존 신호.
+        // sim-time = liveSteps / 240 (Academy가 inference/train 모두 240Hz fixedDeltaTime 강제, MaxStep=75000≈312s).
+        private const float SIM_HZ = 240f;
+        private static readonly float[] MILESTONE_SECONDS = { 30f, 60f, 90f, 120f, 180f, 240f };
+        private static readonly float[] MILESTONE_REWARDS = { 0.3f, 0.5f, 1.0f, 1.5f, 2.0f, 2.5f };
         private const float SECTOR_OBS_RANGE = 12f;
         private const float SECTOR_OBS_MAX_COUNT = 5f;
         // 위치 obs 정규화에만 사용 (페널티 없음).
@@ -76,6 +81,7 @@ namespace RGame.MLAgents
         private int _episodeStartStep;
         private float _lastDiagLogTime;
         private bool _clearedTimeout;
+        private int _nextMilestoneIdx;   // v19: 다음 발화할 생존 마일스톤 커서 (OnEpisodeBegin 리셋).
 
         // v18: FindObjectsByType<Exp> 캐시 — 매 CollectObservations 호출 (이미 decisionPeriod=5 라 48Hz)
         // 마다 새로 호출하면 학습 후반 pool 누적 시 부담 큼. 5 decision 마다 1번 갱신해 ~9.6Hz 로 낮춤.
@@ -139,6 +145,7 @@ namespace RGame.MLAgents
             _episodeKills = 0;
             _episodeStartStep = StepCount;
             _clearedTimeout = false;
+            _nextMilestoneIdx = 0;
         }
 
         public override void CollectObservations(VectorSensor sensor)
@@ -330,7 +337,20 @@ namespace RGame.MLAgents
             PollHpAndExpDeltas();
             ApplyProximityShaping();
             PollEnemyKills();
+            CheckSurvivalMilestones();
             CheckTimeoutClear();
+        }
+
+        // v19: 누적 생존 시간이 각 마일스톤(초)을 처음 넘는 순간 단발 보상. 커서로 각 임계 1회만 발화.
+        private void CheckSurvivalMilestones()
+        {
+            if (!_hasPlayer || _nextMilestoneIdx >= MILESTONE_SECONDS.Length) return;
+            float liveSec = (StepCount - _episodeStartStep) / SIM_HZ;
+            while (_nextMilestoneIdx < MILESTONE_SECONDS.Length && liveSec >= MILESTONE_SECONDS[_nextMilestoneIdx])
+            {
+                AddReward(MILESTONE_REWARDS[_nextMilestoneIdx]);
+                _nextMilestoneIdx++;
+            }
         }
 
         private void CheckTimeoutClear()

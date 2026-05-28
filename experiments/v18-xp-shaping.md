@@ -251,4 +251,8 @@ v18_smoke2 600k 까지 학습 곡선 *지속 상승 추세* (peak +274 도달). 
 
 ## 결론
 
-(v18 1.5M 본 학습 완료 후 갱신)
+**v18 은 obs fix(Exp gem observation 결손 수정)까지의 기록으로 닫는다.**
+
+1.5M 직진(L250)은 실행하지 않았다. 600k smoke2 를 판정 기준(생존시간·90s wall·clear_rate)으로 재검토한 결과, dur 42.8s(v17 84s 대비 단축) + clear 0% 였고, agent 가 *kill farming + 방향 무관 이동보너스 긁기* 로 mean reward 를 부풀리고 **생존 자체는 학습하지 못한** 구조적 문제가 드러났다 (Codex 동의). 원인은 reward surface — `MOVEMENT_BONUS_MAX` 누적이 사실상 최대 보상원, `KILL_REWARD` 가 DEATH 페널티의 3배.
+
+→ obs 는 v18 에서 고쳤으니 그대로 두고, **reward 를 생존 중심으로 재설계하는 v19 로 인계**한다. 후속 기록: `experiments/v19-survival-reward.md`.
