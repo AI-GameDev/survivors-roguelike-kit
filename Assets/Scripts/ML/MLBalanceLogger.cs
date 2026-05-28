@@ -55,10 +55,11 @@ namespace RGame.MLAgents
         private Rigidbody2D _playerRb;
         private EnemySystem _enemySystem;
 
-        // v18 검증용: XP-방향 상관관계 폴링 (1초 주기)
+        // v18 검증용: XP-방향 상관관계 폴링 (0.25초 주기 — sparse trigger 대비 sample 확보)
         private const float XP_ALIGN_OBS_RANGE = 12f;
         private const float XP_ALIGN_PROXIMITY_RANGE = 5f;
         private const float XP_ALIGN_VELOCITY_EPS = 0.1f;
+        private const float XP_ALIGN_POLL_INTERVAL = 0.25f;
         private float _lastXpAlignPollTime;
 
         public void Init(
@@ -235,8 +236,8 @@ namespace RGame.MLAgents
                 }
             }
 
-            // v18 검증: XP-방향 vs 이동 방향 코사인 + 컨텍스트 (1초 주기)
-            if (now - _lastXpAlignPollTime >= 1f)
+            // v18 검증: XP-방향 vs 이동 방향 코사인 + 컨텍스트 (0.25초 주기)
+            if (now - _lastXpAlignPollTime >= XP_ALIGN_POLL_INTERVAL)
             {
                 _lastXpAlignPollTime = now;
                 PollXpAlignment();
@@ -247,10 +248,8 @@ namespace RGame.MLAgents
         {
             if (_playerTransform == null || _playerRb == null) return;
 
-            Vector2 vel = _playerRb.linearVelocity;
-            if (vel.sqrMagnitude < XP_ALIGN_VELOCITY_EPS * XP_ALIGN_VELOCITY_EPS) return;
-
             Vector3 pos = _playerTransform.position;
+            Vector2 vel = _playerRb.linearVelocity;
 
             // nearest XP/Drop gem 탐색 (SurvivorFighterAgent와 동일 범위/태그)
             Collider2D[] hits = Physics2D.OverlapCircleAll(pos, XP_ALIGN_OBS_RANGE);
@@ -265,9 +264,21 @@ namespace RGame.MLAgents
                 float dsq = diff.sqrMagnitude;
                 if (dsq < bestDistSq) { bestDistSq = dsq; bestDir = diff; }
             }
-            if (bestDistSq >= float.MaxValue || bestDistSq < 1e-6f) return;
+
+            int playNo = CurrentPlayNo;
+            bool inRange = bestDistSq < float.MaxValue && bestDistSq > 1e-6f;
+
+            // 분모 데이터: 매 폴링 trigger 됐는지. 0/1 비율 = "XP 가까이 있는 시간 비율"
+            SendLog(playNo, "agent.xp_in_range", inRange ? 1 : 0);
+
+            if (!inRange) return;
 
             float dist = Mathf.Sqrt(bestDistSq);
+            SendLog(playNo, "agent.nearest_xp_distance", dist);
+
+            // velocity 너무 작으면 cos 의미 없음 — distance 만 로깅하고 종료
+            if (vel.sqrMagnitude < XP_ALIGN_VELOCITY_EPS * XP_ALIGN_VELOCITY_EPS) return;
+
             Vector2 xpDir = bestDir / dist;
             Vector2 moveDir = vel.normalized;
             float cos = Vector2.Dot(xpDir, moveDir);
@@ -285,9 +296,7 @@ namespace RGame.MLAgents
                 }
             }
 
-            int playNo = CurrentPlayNo;
             SendLog(playNo, "agent.xp_align_cos", cos);
-            SendLog(playNo, "agent.nearest_xp_distance", dist);
             SendLog(playNo, "agent.nearby_enemy_count", nearbyEnemies);
         }
 
