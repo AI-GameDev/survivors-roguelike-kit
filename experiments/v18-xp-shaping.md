@@ -179,12 +179,76 @@ mlagents-learn configs/survivor_fighter.yaml \
    - **(b)** cos 좋지만 dur 짧으면 → "gem 만 쫓아 자살" 정책 → v19 (회피 시 같이 보강)
    - **(c)** 거의 다 정체 → v19 (potential-based shaping 추가)
 
+### v18 smoke2 (600k step, obs fix + 캐시)
+
+**학습 진행 표 (주요 milestone)**:
+
+| step | sps | mean reward | 비고 |
+|---|---|---|---|
+| 10k | 158 | — | sps PASS (v18_smoke 56 대비 ×2.8) |
+| 50k | 158 | — | sps PASS 유지 |
+| 100k | 127 | -4.01 | v18_smoke 동일 시점 -3.43 와 유사 |
+| 200k | 99 | — | 캐시 효과 둔화 완화 (smoke1: 18 sps) |
+| 300k | 78 | -1.29 | |
+| 315k | — | **+17.18** | 첫 양수 큰 peak |
+| 320k | — | +12.37 | |
+| 375k | 65 | **+19.26** | 양수 새 peak |
+| 460k | 56 | **+21.05** | |
+| 470k | — | **+23.11** | |
+| 485k | — | **+274.32** | outlier — CLEAR/다수 kill episode |
+| 500k | 53 | +12.24 | |
+| 520k | — | +41.50 | |
+| 575k | 50 | +40.51 | |
+| 600k (final) | 49 | +11.13 (595k 기준) | |
+
+- 평균 49 sps, total wall-clock ~3.4시간 (v18_smoke 1.7시간 / 200k 환산 가능)
+- 캐시 효과 확정: 학습 후반 sps 가 v18_smoke 의 ~3~5배
+
+**Inference 측정 (v18_smoke2 onnx, 15 episodes, 12분)**:
+
+| 지표 | v17 | v18_smoke (200k) | **v18_smoke2 (600k)** | 추세 |
+|---|---|---|---|---|
+| in_range 비율 | 0% | 66.4% | **64.3%** | ≈ 유지 |
+| nearest_xp dist mean | — | 6.22m | **4.96m** | 더 가까이 ↓ |
+| cos all mean | — | -0.005 | **-0.103** | 음수 진행 |
+| cos safe (0적) | — | -0.033 | -0.037 | 정체 |
+| cos low (1적) | — | -0.048 | **+0.026** | 양수 전환 |
+| cos mid (2적) | — | -0.502 | -0.106 | 향상 (덜 음수) |
+| cos danger (≥3적) | — | +0.032 | **-0.230** | 음수 (적 많으면 XP 반대) |
+| episode dur mean | 83~180s | 26s | **42.8s** (median 34.9s) | ×1.6 |
+| final_level mean | 5+ | 1.25 | **3.53** (median 4.0) | ×2.8 |
+| total_kills mean | 다수 | 3.25 | **19.57** (median 23) | ×6 |
+| final_exp mean | — | 35 | 45.2 | ×1.3 |
+| total_damage mean | — | — | 128.3 | — |
+| causes | mixed | death × 4 | **death × 15** | 정체 |
+| clear_rate | — | 0% | **0%** | 정체 |
+
+**판정 (사전 합의 기준)**:
+- 4개 지표 (in_range / dur / kills / level) 압도적 향상
+- 1개 지표 (cos) 사전 합의 "실패 영역" (<0)
+
+→ **"XP 무관심하지만 잘 살고 잘 죽이는" 정책 학습**. Codex 가설 ("PPO 가 XP 가 아닌 다른 곳에서 reward 끌어옴") 확정. agent 가 *적 처치 + 자석 픽업 부산물* 로 level/exp 얻음.
+
+### 사용자 의도 확정 (2026-05-29)
+
+사용자가 원하는 정책: **(B) 잘 살고 잘 클리어하는 agent** (XP 적극 추종 X).
+→ v18 방향 OK. cos negative 가 문제 아님. v19 (potential-based shaping) 불필요.
+
+### 다음 단계 (v18 1.5M 본 학습)
+
+v18_smoke2 600k 까지 학습 곡선 *지속 상승 추세* (peak +274 도달). 1.5M 까지 가면:
+- clear rate 0% → 향상 기대 (5분 timeout 도달 빈도 ↑)
+- episode dur 42.8s → 더 향상 (당장 75000 step = 312s timeout 도달 가능)
+- kills/level 더 향상
+- *XP 방향성은 의도적으로 신경 안 씀* (사용자 의도 B 일치)
+
 ## 변경 사유 (smoke 결과로 설계 바꾼 경우)
 
 - **2026-05-28**: 선행 검증에서 *observation 결손 버그* 발견 → reward shaping 가설 검증 미루고 obs fix 단독 (V18a) 로 전환. Codex/사용자 동의.
 - **2026-05-28**: 200k smoke 결과 `mean reward -0.12 학습됐는데 cos ≈ 0` → "obs fix 만으론 XP-seeking 신호 약함" 가설 강화. 1.5M 직진 대신 *캐시 + 600k 추가 smoke* 로 결정 데이터 더 모으기.
 - **2026-05-28**: 학습 속도 단조 둔화 (132 → 18 step/sec) 발견 → FindObjectsByType 캐시 + ApplyProximityShaping 캐시 검토.
+- **2026-05-29**: 600k smoke2 결과 confirm "obs fix 만으론 cos negative" (사용자 의도와 무관함) + dur/kills/level 큰 향상 + 학습 곡선 peak +274 도달. 사용자 의도 = (B) "잘 살고 잘 클리어" 확정 → v19 (XP shaping) 불필요. v18 1.5M 본 학습으로 진행.
 
 ## 결론
 
-(600k smoke + 측정 + 판정 완료 후 갱신)
+(v18 1.5M 본 학습 완료 후 갱신)
