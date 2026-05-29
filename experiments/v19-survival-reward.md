@@ -74,7 +74,44 @@ inference 측정 절차: `results/<run>/SurvivorFighterAgent.onnx` → `Assets/M
 
 ## 결과 (학습 후 누적)
 
-(v19 smoke 학습/측정 후 갱신)
+### 600k smoke 학습 (run_id `survivor_fighter_v19_smoke`, from-scratch)
+
+- 완료: 2026-05-29 09:52. 총 ~12585s (~3h30m), Step 600000 도달 → onnx export → 정상 종료. 에러 0.
+- final onnx: `ml-training/results/.../SurvivorFighterAgent.onnx` (=600021 ckpt) → `Assets/ML-Models/SurvivorFighterAgent_v19_smoke.onnx` 백업.
+- 학습 막판 mean reward 출렁임(123→0.016) + "No episode completed" 다수 = milestone 간헐 발화 + 에피소드 길어진 흔적. **판정 지표 아님** — inference 측정으로만 판정.
+
+### Inference 측정 (v19_smoke onnx, 15 episodes, PlayTrace session `20260529_001`, ~25분)
+
+| Play | Dur(s) | Cause | Lvl | Kills | DmgTaken | EXP |
+|---|---|---|---|---|---|---|
+| 1 | 85.3 | death | 8 | 60 | 103 | 219 |
+| 2 | 76.2 | death | 5 | 37 | 101 | 74 |
+| 3 | 127.8 | death | 6 | 37 | 710 | 130 |
+| 4 | 75.8 | death | 3 | 36 | 100 | 139 |
+| 5 | 70.1 | death | 5 | 35 | 100 | 114 |
+| 6 | 64.4 | death | 5 | 25 | 100 | −126 |
+| 7 | 79.5 | death | 5 | 36 | 120 | −6 |
+| 8 | 86.5 | death | 7 | 72 | 100 | 125 |
+| 9 | 26.7 | death | 2 | 10 | 100 | 60 |
+| **10** | **343.9** | **timeout (clear)** | **30** | **1739** | 488 | −586 |
+| 11 | 93.8 | death | 6 | 76 | 101 | 130 |
+| 12 | 110.5 | death | 12 | 132 | 432 | 329 |
+| 13 | 74.8 | death | 5 | 31 | 100 | 114 |
+| 14 | 128.1 | death | 17 | 218 | 551 | 96 |
+| 15 | 84.9 | death | 7 | 45 | 103 | 49 |
+
+**판정 (vs v18_smoke2 baseline):**
+
+| 지표 | v18_smoke2 | v19_smoke | 변화 |
+|---|---|---|---|
+| 평균 생존 | 42.8s | **101.9s** | +138% ✅ |
+| median 생존 | 34.9s | **84.9s** | +143% ✅ |
+| 90s wall 통과 | 0/15 | **5/15 (33%)** | ✅ 최초 |
+| clear_rate (timeout) | 0% | **7% (1/15)** | ✅ 최초 clear |
+
+- **셋 다 큰 폭 개선 → reward 재설계 성공.** milestone + MOVEMENT 축소 + KILL 약화가 의도대로 작동.
+- play #10 이 90s wall 통과 후 343.9s/Lvl 30/1739 kills 로 snowball 완주 → [bimodal kill threshold](../) 패턴 그대로: wall 넘으면 무한 snowball. v19 는 wall 통과율을 0→33% 로 끌어올림.
+- 비고: 일부 play `final_exp` 음수(#6 −126, #10 −586). 게임 EXP 누적 메트릭 quirk 로 추정, 판정 지표 아님 — 후속 점검 항목.
 
 ## 변경 사유 (smoke 결과로 설계 바꾼 경우)
 
@@ -82,4 +119,7 @@ inference 측정 절차: `results/<run>/SurvivorFighterAgent.onnx` → `Assets/M
 
 ## 결론
 
-(v19 학습 완료 후 갱신)
+**v19 reward 재설계 = 성공. 1.5M 본 학습으로 진행 권장.** 600k smoke 만으로 v18_smoke2 대비 생존 +138%, 90s wall 통과 0→33%, clear 0→7% 달성 — 셋 다 핸드오프 판정 기준 통과. 600k 에서 이미 신호가 뚜렷하므로 1.5M 에서 wall 통과율/clear_rate 추가 상승 기대.
+
+- 다음: run_id `survivor_fighter_v19`, max_steps 1.5M, from-scratch (`initialize_from` 금지), reward·환경 freeze 유지.
+- smoke 모델 그대로 reward 미세조정 불필요 — 현 설계로 본 학습 직행.
